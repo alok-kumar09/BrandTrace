@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <script>
+      document.documentElement.dataset.theme =
+        localStorage.getItem("brandtrace.theme") ||
+        (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>BrandTrace – Brand Guidelines</title>
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="css/pages.css">
+  </head>
+
+  <body data-page="guidelines">
+    <main class="container">
+      <div class="page-head">
+        <h1>Brand Guideline Configuration</h1>
+        <p>
+          Rules saved here are applied automatically on the Dashboard. Changes autosave as a draft until you click Save.
+        </p>
+      </div>
+
+      <!-- Inside frontend/guidelines.html layout-2col form container -->
+      <div class="layout-2col">
+        <form id="guidelines-form" class="card form-card" novalidate>
+          <div class="form-group">
+            <label for="tone">Tone Guidelines</label>
+            <div class="hint">Describe the voice your brand should use.</div>
+            <textarea
+              id="tone"
+              class="field"
+              placeholder="e.g. Confident, clear, and customer-friendly."
+            ></textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="chip-input">Restricted Words &amp; Severity Tiers</label>
+            <div class="hint">
+              Type a term and select its default risk level. Press Enter to add.
+            </div>
+
+            <div style="display: flex; gap: 8px; margin-bottom: 8px;">
+              <input
+                id="chip-input"
+                class="field"
+                type="text"
+                placeholder="Type a word…"
+              >
+              <select id="rule-severity" class="field" style="width: 140px;">
+                <option value="high">High Risk</option>
+                <option value="medium" selected>Medium Risk</option>
+                <option value="low">Low Risk</option>
+              </select>
+            </div>
+
+            <div id="chip-box" class="chip-box"></div>
+          </div>
+
+          <div class="form-group">
+            <label for="specs">Approved Product Facts</label>
+            <div class="hint">One per line, in the format “Subject: value”.</div>
+            <textarea
+              id="specs"
+              class="field"
+              placeholder="NovaBook Pro battery life: Up to 12 hours"
+            ></textarea>
+          </div>
+
+          <!-- Live Rule-Testing Sandbox Component -->
+          <div
+            class="form-group card"
+            style="background: var(--surface-alt); margin-top: 16px;"
+          >
+            <h3 style="margin-bottom: 8px;">🧪 Live Rule-Testing Sandbox</h3>
+            <div class="hint">
+              Type sample text below to test how your active rules evaluate it in real time:
+            </div>
+            <input
+              id="sandbox-input"
+              class="field"
+              type="text"
+              placeholder="e.g. This is the cheapest laptop ever..."
+              style="margin-top: 8px;"
+            >
+            <div
+              id="sandbox-feedback"
+              style="margin-top: 10px; font-size: 0.9rem; font-weight: 600;"
+            ></div>
+          </div>
+
+          <div class="editor-actions">
+            <button type="submit" class="btn btn-primary">
+              💾 Save Guidelines
+            </button>
+            <button type="button" id="reset-btn" class="btn btn-secondary">
+              Restore Defaults
+            </button>
+            <span id="save-status" class="save-status"></span>
+          </div>
+        </form>
+
+        <aside class="sticky-aside">
+          <div class="card tip-card">
+            <h3>💡 Writing good rules</h3>
+            <p>
+              Assign High severity to legal or financial superlatives to block them instantly during workbench audits.
+            </p>
+          </div>
+
+          <div class="card">
+            <div class="mini-stat">
+              <span>Current rule set</span>
+              <strong id="rule-count">0 words · 0 facts</strong>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </main>
+
+    <script src="js/nav.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/storage.js"></script>
+    <script src="js/sample-data.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/app.js"></script>
+  </body>
+</html>

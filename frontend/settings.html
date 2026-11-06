@@ -1,0 +1,230 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script>
+        document.documentElement.dataset.theme =
+            localStorage.getItem("brandtrace.theme") ||
+            (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+    </script>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>BrandTrace – Organization Settings</title>
+
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="css/pages.css">
+</head>
+
+<body data-page="settings">
+    <main class="container">
+
+        <div class="page-head">
+            <h1>Organization Settings</h1>
+            <p>Manage your workspace profile, team preferences and notification rules.</p>
+        </div>
+
+        <div
+            id="role-notice"
+            class="notice"
+            hidden
+            style="margin-bottom: 16px; max-width: 900px"
+        >
+            🔒 Only Brand Managers can change settings. You are viewing read-only.
+        </div>
+
+        <div class="layout-2col">
+
+            <form id="settings-form" class="settings-stack">
+
+                <!-- Organization Profile -->
+                <section class="card">
+                    <h2 style="margin-bottom: 16px">🏢 Organization profile</h2>
+
+                    <div class="field-row">
+                        <div class="form-group">
+                            <label for="org_name">Organization name</label>
+                            <input
+                                class="field"
+                                id="org_name"
+                                name="org_name"
+                                type="text"
+                            >
+                        </div>
+
+                        <div class="form-group">
+                            <label for="industry">Industry</label>
+                            <select class="field" id="industry" name="industry">
+                                <option>Consumer Electronics</option>
+                                <option>Retail &amp; E-commerce</option>
+                                <option>Financial Services</option>
+                                <option>Healthcare</option>
+                                <option>Other</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="field-row">
+                        <div class="form-group">
+                            <label for="website">Website</label>
+                            <input
+                                class="field"
+                                id="website"
+                                name="website"
+                                type="url"
+                                placeholder="https://"
+                            >
+                        </div>
+
+                        <div class="form-group">
+                            <label for="contact">Governance contact</label>
+                            <input
+                                class="field"
+                                id="contact"
+                                name="contact"
+                                type="email"
+                            >
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Team Preferences -->
+                <section class="card">
+                    <h2 style="margin-bottom: 8px">👥 Team preferences</h2>
+
+                    <div class="switch-row">
+                        <div>
+                            Require manager approval for High severity
+                            <small>
+                                Creators cannot accept High issues without sign-off.
+                            </small>
+                        </div>
+
+                        <input
+                            class="toggle"
+                            type="checkbox"
+                            name="require_approval"
+                        >
+                    </div>
+
+                    <div class="switch-row">
+                        <div>
+                            Show explanations by default
+                            <small>
+                                Display the “why it matters” section on every card.
+                            </small>
+                        </div>
+
+                        <input
+                            class="toggle"
+                            type="checkbox"
+                            name="show_explanations"
+                        >
+                    </div>
+
+                    <div class="switch-row">
+                        <div>
+                            Default role for new members
+                            <small>Applied when someone registers.</small>
+                        </div>
+
+                        <select
+                            class="field"
+                            name="default_role"
+                            style="width: 200px"
+                        >
+                            <option>Content Creator</option>
+                            <option>Brand Manager</option>
+                        </select>
+                    </div>
+                </section>
+
+                <!-- Notification Rules -->
+                <section class="card">
+                    <h2 style="margin-bottom: 8px">🔔 Notification rules</h2>
+
+                    <div class="switch-row">
+                        <div>
+                            Email me on High severity issues
+                            <small>
+                                Instant alert when a draft contains a High issue.
+                            </small>
+                        </div>
+
+                        <input
+                            class="toggle"
+                            type="checkbox"
+                            name="notify_high"
+                        >
+                    </div>
+
+                    <div class="switch-row">
+                        <div>
+                            Weekly governance digest
+                            <small>
+                                Summary of audits, issues and review outcomes.
+                            </small>
+                        </div>
+
+                        <input
+                            class="toggle"
+                            type="checkbox"
+                            name="notify_digest"
+                        >
+                    </div>
+                </section>
+
+                <!-- Save Settings -->
+                <div class="editor-actions">
+                    <button class="btn btn-primary" type="submit">
+                        💾 Save Settings
+                    </button>
+                </div>
+
+                <!-- Dynamic Compliance Activity Feed -->
+                <div
+                    id="activity-feed-container"
+                    style="margin-top: 24px;"
+                ></div>
+
+            </form>
+
+            <!-- Sidebar -->
+            <aside class="sticky-aside">
+
+                <div class="card tip-card">
+                    <h3>💡 Tips</h3>
+                    <p>
+                        Require manager approval for High severity to keep
+                        risky claims from shipping unreviewed.
+                    </p>
+                </div>
+
+                <details class="acc" open>
+                    <summary>Who can edit settings?</summary>
+                    <div class="acc-body">
+                        Brand Managers can edit. Content Creators have
+                        read-only access.
+                    </div>
+                </details>
+
+                <details class="acc">
+                    <summary>Where is data stored?</summary>
+                    <div class="acc-body">
+                        Drafts and settings live in your browser's localStorage
+                        until the backend is connected.
+                    </div>
+                </details>
+
+            </aside>
+
+        </div>
+    </main>
+
+    <script src="js/nav.js"></script>
+    <script src="js/settings.js"></script>
+</body>
+</html>

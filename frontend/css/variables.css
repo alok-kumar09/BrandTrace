@@ -1,0 +1,111 @@
+
+/* =========================================
+   BRANDTRACE — FOREST GREEN DESIGN SYSTEM
+   ========================================= */
+
+:root {
+  /* Brand identity */
+  --primary: #315B43;
+  --primary-dark: #244633;
+  --primary-soft: #E5EDE3;
+
+  --accent: #769579;
+  --accent-soft: #EDF2E9;
+  --gold: #B58B55;
+
+  /* Backgrounds */
+  --bg: #F5F1E8;
+  --surface: #FFFEFA;
+  --surface-alt: #F0EEE5;
+  --dark: #1D3025;
+
+  /* Borders */
+  --border: #DEDCCF;
+
+  /* Typography */
+  --text: #26342B;
+  --muted: #788276;
+
+  /* Semantic colours */
+  --danger: #C6534D;
+  --danger-soft: #F8E8E5;
+
+  --warning: #AD7835;
+  --warning-soft: #F7EEDC;
+
+  --info: #527D91;
+  --info-soft: #E6EFF1;
+
+  --success: #397A55;
+  --success-soft: #E4EFE5;
+
+  /* Typography */
+  --font: "Inter", system-ui, -apple-system,
+          "Segoe UI", Roboto, sans-serif;
+
+  --mono: ui-monospace, "SF Mono", Menlo,
+          Consolas, monospace;
+
+  /* Shape */
+  --radius: 10px;
+
+  /* Spacing */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+
+  /* Shadows */
+  --shadow:
+    0 1px 3px rgba(38, 52, 43, .055),
+    0 5px 16px rgba(38, 52, 43, .045);
+}
+
+
+/* =========================================
+   DARK THEME
+   ========================================= */
+
+[data-theme="dark"] {
+  /* Brand identity */
+  --primary: #426D50;
+  --primary-dark: #31563D;
+  --primary-soft: #26382B;
+
+  --accent: #A5C5A4;
+  --accent-soft: #28392C;
+  --gold: #D6B47C;
+
+  /* Backgrounds */
+  --bg: #101A15;
+  --surface: #18241C;
+  --surface-alt: #202E24;
+  --dark: #0B120E;
+
+  /* Borders */
+  --border: #304035;
+
+  /* Typography */
+  --text: #E8EDE6;
+  --muted: #A6B2A5;
+
+  /* Semantic colours */
+  --danger: #EF8580;
+  --danger-soft: #3B2422;
+
+  --warning: #E5B76C;
+  --warning-soft: #3B3020;
+
+  --info: #83B5C7;
+  --info-soft: #20343C;
+
+  --success: #85C99A;
+  --success-soft: #20382A;
+
+  /* Shadows */
+  --shadow:
+    0 2px 8px rgba(0, 0, 0, .24),
+    0 6px 18px rgba(0, 0, 0, .12);
+}

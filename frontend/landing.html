@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script>document.documentElement.dataset.theme=localStorage.getItem("brandtrace.theme")||(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light")</script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>BrandTrace – AI Brand Governance</title>
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/dashboard.css">
+  <link rel="stylesheet" href="css/pages.css">
+</head>
+<body data-page="landing">
+  <section class="hero">
+    <span class="eyebrow">🛡️ AI-powered brand governance</span>
+    <h1>Ship on-brand content, <em>every single time</em>.</h1>
+    <p>BrandTrace audits your copy against your tone, restricted words, and approved product facts, then lets a human decide on every fix.</p>
+    
+    <!-- Interactive Hero Micro-Widget -->
+    <div class="card" style="max-width: 600px; margin: 0 auto; text-align: left; background: var(--surface);">
+      <h3 style="margin-bottom: 8px;">⚡ Try a Live Lint Check</h3>
+      <p style="font-size: 0.85rem; margin-bottom: 12px;">Type or pick a sample phrase to see instant brand rule violation flags:</p>
+      <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+        <input id="hero-test-input" class="field" type="text" value="Our new smartphone is the cheapest and guaranteed best!" style="flex: 1; min-width: 220px;">
+        <button id="hero-test-btn" class="btn btn-primary" type="button">Test Copy</button>
+      </div>
+      <div id="hero-test-result" style="margin-top: 12px; font-size: 0.9rem;" aria-live="polite"></div>
+    </div>
+
+    <div class="hero-cta" style="margin-top: 24px;">
+      <a class="btn btn-primary btn-lg" href="index.html">🚀 Launch Workbench</a>
+      <a class="btn btn-secondary btn-lg" href="guidelines.html">⚙️ Configure Guidelines</a>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2>Everything your brand team needs</h2>
+    <p class="sub">Governance that is fast for creators and accountable for managers.</p>
+    
+    <!-- Interactive Feature Accordions / Toggles -->
+    <div class="features-accordion-stack" style="max-width: 900px; margin: 0 auto;">
+      <details class="acc" open>
+        <summary>🚫 Restricted Word &amp; Price Superlative Detection</summary>
+        <div class="acc-body">
+          Automatically flag risky claims like “cheapest”, “best in class”, or unverified financial guarantees before they reach production customers.
+        </div>
+      </details>
+      <details class="acc">
+        <summary>📐 Automated Fact Verification</summary>
+        <div class="acc-body">
+          Compare every technical claim in your draft against approved product specs (e.g., battery life, dimensions) and catch mismatches instantly.
+        </div>
+      </details>
+      <details class="acc">
+        <summary>🎙️ Tone &amp; Style Alignment</summary>
+        <div class="acc-body">
+          Keep brand voice consistent across disparate teams, marketing channels, and global campaign launches using customizable prompt guidelines.
+        </div>
+      </details>
+      <details class="acc">
+        <summary>👥 Human-in-the-Loop Governance</summary>
+        <div class="acc-body">
+          Nothing changes automatically. Reviewers retain absolute control, accepting purpose-preserving edits or rejecting warnings with a single click.
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section class="cta-band">
+    <h2>Ready to audit your first draft?</h2>
+    <p>Sign in as a Brand Manager or Content Creator, or jump straight into the workbench.</p>
+    <div class="hero-cta">
+      <a class="btn btn-primary btn-lg" href="auth.html">Sign in</a>
+      <a class="btn btn-secondary btn-lg" href="index.html">Launch Workbench</a>
+    </div>
+  </section>
+  <footer class="footer">© 2026 BrandTrace · Built for the hackathon · <a href="about.html">Governance principles</a></footer>
+  
+  <!-- Landing Script for Micro-Widget -->
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const input = document.getElementById("hero-test-input");
+      const btn = document.getElementById("hero-test-btn");
+      const result = document.getElementById("hero-test-result");
+
+      function runTest() {
+        const val = input.value.toLowerCase();
+        const violations = [];
+        if (val.includes("cheapest")) violations.push("“cheapest” (Restricted Price Superlative)");
+        if (val.includes("guaranteed")) violations.push("“guaranteed” (Unverified Legal Risk)");
+
+        if (violations.length > 0) {
+          result.innerHTML = `<div style="background: var(--danger-soft); color: var(--danger); padding: 8px 12px; border-radius: 6px; font-weight: 600;">❌ Found ${violations.length} violation(s): ${violations.join(", ")}</div>`;
+        } else {
+          result.innerHTML = `<div style="background: var(--success-soft); color: var(--success); padding: 8px 12px; border-radius: 6px; font-weight: 600;">✔ Copy looks clean and compliant with standard rules!</div>`;
+        }
+      }
+
+      if (btn) btn.addEventListener("click", runTest);
+      if (input) input.addEventListener("keydown", e => { if (e.key === "Enter") runTest(); });
+      runTest(); // Initial evaluation on load
+    });
+  </script>
+  <script src="js/nav.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/sample-data.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
