@@ -1,4 +1,5 @@
-# Environment variables
+
+# Environment variables and secrets
 .env
 
 # Python virtual environment
@@ -8,8 +9,14 @@ venv/
 __pycache__/
 *.pyc
 
+# Local database
+instance/
+*.db
+*.sqlite
+*.sqlite3
+
 # Uploaded documents
 uploads/
 
-# Local configuration
+# Local VS Code settings
 .vscode/
