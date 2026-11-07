@@ -1,5 +1,4 @@
-
-(function () {
+window.__btApp = function () {
   "use strict";
 
   const $ = id => document.getElementById(id);
@@ -87,7 +86,6 @@
   // ================= WORKBENCH =================
 
   function initWorkbench() {
-
     const editor = $("editor");
     const results = $("results");
     const button = $("analyse-btn");
@@ -124,7 +122,6 @@
     // ---- Persistence ----
 
     const persist = () => {
-
       store.set(K.wb, {
         content: editor.value,
         issues,
@@ -141,7 +138,6 @@
     // ---- Character Counter ----
 
     function updateCounter() {
-
       if (!counter) return;
 
       counter.textContent =
@@ -156,9 +152,7 @@
     // ---- Statistics Update ----
 
     function updateStats() {
-
       const total = $("st-total");
-
       if (!total) return;
 
       const guidelines = Storage.load();
@@ -179,15 +173,13 @@
 
       $("st-rules").textContent =
         (guidelines.restricted_words || []).length +
-        (guidelines.approved_specs || []).length;
+        Object.keys(guidelines.approved_facts || {}).length;
     }
 
     // ---- Guidelines Snapshot ----
 
     function updateSnapshot() {
-
       const element = $("rules-snapshot");
-
       if (!element) return;
 
       const guidelines = Storage.load();
@@ -195,8 +187,9 @@
       const restrictedWords =
         guidelines.restricted_words || [];
 
-      const approvedSpecs =
-        guidelines.approved_specs || [];
+      const approvedSpecs = Object.entries(
+        guidelines.approved_facts || {}
+      ).map(([subject, value]) => `${subject}: ${value}`);
 
       element.innerHTML = `
         <div class="label">Tone</div>
@@ -232,7 +225,6 @@
     // ---- Results Summary ----
 
     function summary() {
-
       const openIssues = issues.filter(
         issue => !issue.status
       );
@@ -244,7 +236,6 @@
 
       return `
         <div class="summary-bar">
-
           <span class="badge neutral">
             ${openIssues.length} open
           </span>
@@ -274,18 +265,15 @@
                 </span>`
               : ""
           }
-
         </div>`;
     }
 
     // ---- Render Results ----
 
     function render(animate = false) {
-
       updateStats();
 
       if (!issues.length) {
-
         results.innerHTML = source
           ? `
             <div class="empty-state">
@@ -301,7 +289,6 @@
       results.innerHTML =
         summary() +
         issues.map((issue, index) => `
-
           <article
             class="issue-card sev-${esc(issue.severity)}
               ${issue.status ? "resolved" : ""}
@@ -310,7 +297,6 @@
             data-id="${esc(issue.id)}">
 
             <div class="issue-head">
-
               <span class="category">
                 ${esc(issue.category)}
               </span>
@@ -328,7 +314,6 @@
                       ${esc(issue.severity)}
                     </span>`
               }
-
             </div>
 
             <div class="label">Original text</div>
@@ -351,7 +336,6 @@
                 ? ""
                 : `
                   <div class="issue-actions">
-
                     <button
                       class="btn btn-success btn-sm"
                       data-act="accept"
@@ -365,50 +349,40 @@
                       type="button">
                       ✖ Reject
                     </button>
-
                   </div>`
             }
-
           </article>
-
         `).join("");
     }
 
     // ---- Validation ----
 
     function validate() {
-
       const value = editor.value.trim();
 
       if (!value) {
-
         setError(
           editor,
           "Add some content to analyse."
         );
-
         return false;
       }
 
       if (value.length > MAX) {
-
         setError(
           editor,
           `Content is too long. The limit is ${MAX} characters.`
         );
-
         return false;
       }
 
       clearError(editor);
-
       return true;
     }
 
     // ================= ANALYSIS =================
 
     async function analyse() {
-
       if (button.disabled) return;
 
       if (!validate()) {
@@ -416,20 +390,14 @@
         return;
       }
 
-      // Loading state
       button.disabled = true;
-
-      button.setAttribute(
-        "aria-busy",
-        "true"
-      );
+      button.setAttribute("aria-busy", "true");
 
       button.innerHTML = `
         <span class="spinner" aria-hidden="true"></span>
         Analysing…
       `;
 
-      // Display skeletons immediately
       results.innerHTML = skeletons();
 
       document.querySelectorAll(
@@ -439,20 +407,17 @@
       });
 
       try {
-
         const data = await ApiClient.analyzeContent(
           editor.value.trim(),
           Storage.load()
         );
 
-        // Validate API response
         if (!data || !Array.isArray(data.issues)) {
           throw new Error(
             "The analysis service returned an invalid response."
           );
         }
 
-        // Store issues
         issues = data.issues.map((issue, index) => ({
           ...issue,
           id: issue.id ?? `issue-${Date.now()}-${index}`,
@@ -461,12 +426,9 @@
 
         source = data.source || "mock";
 
-        // Render and persist
         render(true);
-
         persist();
 
-        // Success notification
         notify(
           issues.length
             ? `Analysis complete. ${issues.length} issue${issues.length === 1 ? "" : "s"} found.`
@@ -475,8 +437,6 @@
         );
 
       } catch (error) {
-
-        // Error handling
         let message =
           error?.message ||
           "An unexpected error occurred while analysing the content.";
@@ -488,8 +448,9 @@
           message =
             "You do not have permission to run content audits for this organisation.";
         } else if (error?.status === 404) {
-          message =
-            "Analysis endpoint not found. Check backend routes.";
+          message = error.message || "Analysis endpoint not found. Check backend routes.";
+        } else if (error?.status === 0) {
+          message = "Cannot reach the BrandTrace server. Start the backend (python app.py) and refresh.";
         }
 
         results.innerHTML = `
@@ -499,12 +460,9 @@
             <p>${esc(message)}</p>
           </div>`;
 
-        // Error notification
         notify(message, "error");
 
       } finally {
-
-        // Always restore UI
         document.querySelectorAll(
           ".stat .value"
         ).forEach(value => {
@@ -512,9 +470,7 @@
         });
 
         button.disabled = false;
-
         button.removeAttribute("aria-busy");
-
         button.innerHTML = "🔍 Analyse Content";
       }
     }
@@ -524,18 +480,15 @@
     button.addEventListener("click", analyse);
 
     editor.addEventListener("keydown", event => {
-
       if (
         (event.ctrlKey || event.metaKey) &&
         event.key === "Enter"
       ) {
         analyse();
       }
-
     });
 
     editor.addEventListener("input", () => {
-
       updateCounter();
 
       if (editor.classList.contains("invalid")) {
@@ -548,7 +501,6 @@
     // ---- Accept / Reject Suggestions ----
 
     results.addEventListener("click", event => {
-
       const actionButton =
         event.target.closest("[data-act]");
 
@@ -564,13 +516,11 @@
       if (!issue) return;
 
       if (actionButton.dataset.act === "accept") {
-
         const escapedText = String(
           issue.original_text || ""
         ).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
         if (escapedText) {
-
           const expression = new RegExp(
             escapedText,
             "i"
@@ -592,7 +542,6 @@
         );
 
       } else if (actionButton.dataset.act === "reject") {
-
         issue.status = "rejected";
 
         notify(
@@ -604,13 +553,11 @@
       updateCounter();
       render();
       persist();
-
     });
 
     // ---- Clear Draft ----
 
     $("clear-btn")?.addEventListener("click", () => {
-
       editor.value = "";
       issues = [];
       source = null;
@@ -625,20 +572,17 @@
       if (status) {
         status.textContent = "";
       }
-
     });
 
     // ---- Load Sample ----
 
     $("sample-btn")?.addEventListener("click", () => {
-
       editor.value = SampleData.draft;
 
       clearError(editor);
 
       updateCounter();
       persist();
-
     });
 
     // ---- Initial State ----
@@ -650,312 +594,276 @@
     if (saved && status) {
       status.textContent = "Draft restored";
     }
-
   }
 
   // ================= GUIDELINES =================
 
-  function initGuidelines() {
-
-    const saved = Storage.load();
-
+  async function initGuidelines() {
     const box = $("chip-box");
     const input = $("chip-input");
     const severitySelect = $("rule-severity");
     const status = $("save-status");
     const form = $("guidelines-form");
-
     const sandboxInput = $("sandbox-input");
     const sandboxFeedback = $("sandbox-feedback");
-
     const toneInput = $("tone");
     const specsInput = $("specs");
 
-    if (
-      !box ||
-      !input ||
-      !severitySelect ||
-      !form ||
-      !toneInput ||
-      !specsInput
-    ) {
-      return;
-    }
+    if (!box || !input || !severitySelect || !form || !toneInput || !specsInput) return;
 
-    // ---- Load Existing Rules ----
-
-    let restrictedRules = Array.isArray(saved.restricted_terms)
-      ? saved.restricted_terms.map(rule =>
-          typeof rule === "string"
-            ? {
-                term: rule,
-                severity: "medium"
-              }
-            : {
-                term: rule.term,
-                severity: rule.severity || "medium"
-              }
-        )
-      : (saved.restricted_words || []).map(word => ({
-          term: word,
-          severity: "medium"
-        }));
-
-    toneInput.value = saved.tone || "";
-
-    specsInput.value =
-      (saved.approved_specs || []).join("\n");
+    const localSaved = Storage.load();
+    let restrictedRules = [];
+    let approvedTerms = [];   // round-tripped so saving never wipes them
 
     const specLines = () =>
-      specsInput.value
-        .split("\n")
-        .map(line => line.trim())
-        .filter(Boolean);
+      specsInput.value.split("\n").map(l => l.trim()).filter(Boolean);
 
-    // ---- Sandbox Validation ----
-
-    function updateSandbox() {
-
-      if (!sandboxInput || !sandboxFeedback) return;
-
-      const sample =
-        sandboxInput.value.toLowerCase();
-
-      if (!sample) {
-
-        sandboxFeedback.textContent = "";
-        sandboxFeedback.className = "";
-
-        return;
+    const factsToLines = facts => {
+      if (Array.isArray(facts)) {
+        return facts.map(item =>
+          typeof item === "string" ? item
+            : `${item.subject || "General"}: ${item.value || ""}`.trim());
       }
+      if (facts && typeof facts === "object") {
+        return Object.entries(facts).map(([k, v]) => `${k}: ${v}`);
+      }
+      return [];
+    };
 
-      const matched = restrictedRules.find(
-        rule => sample.includes(rule.term.toLowerCase())
-      );
+    const linesToFacts = () => {
+      const facts = {};
+      specLines().forEach(line => {
+        const i = line.indexOf(":");
+        const subject = i >= 0 ? line.slice(0, i).trim() : "General";
+        const value = i >= 0 ? line.slice(i + 1).trim() : line;
+        if (subject && value) facts[subject] = value;
+      });
+      return facts;
+    };
 
+    // Per-term severity only exists in the browser; the backend stores plain words.
+    const localSeverity = {};
+    (localSaved.restricted_terms || []).forEach(r => {
+      if (r && r.term) localSeverity[r.term.toLowerCase()] = r.severity || "medium";
+    });
+
+    const loadRules = rules =>
+      (Array.isArray(rules) ? rules : [])
+        .map(rule => typeof rule === "string"
+          ? { term: rule, severity: localSeverity[rule.toLowerCase()] || "medium" }
+          : { term: rule.term || "", severity: rule.severity || "medium" })
+        .filter(rule => rule.term);
+
+    const persistLocal = () => Storage.save({
+      tone: toneInput.value.trim(),
+      restricted_terms: restrictedRules,
+      restricted_words: restrictedRules.map(r => r.term),
+      approved_terms: approvedTerms,
+      approved_facts: linesToFacts(),
+    });
+
+    // ---- Load from backend (fallback: this browser's copy) ----
+    try {
+      const data = await ApiClient.endpoints.getGuidelines();
+      restrictedRules = loadRules(data.restricted_words);
+      approvedTerms = Array.isArray(data.approved_terms) ? data.approved_terms : [];
+      toneInput.value = data.tone || "";
+      specsInput.value = factsToLines(data.approved_facts).join("\n");
+      persistLocal();
+      if (status) status.textContent = "Guidelines loaded from server";
+    } catch (error) {
+      restrictedRules = loadRules(localSaved.restricted_terms || localSaved.restricted_words);
+      approvedTerms = localSaved.approved_terms || [];
+      toneInput.value = localSaved.tone || "";
+      specsInput.value = factsToLines(localSaved.approved_facts).join("\n");
+      if (status) {
+        status.textContent =
+          error.status === 404 ? "No saved server guidelines yet. Edit and save to create them."
+          : error.status === 0 ? "Server offline. Showing this browser's saved copy."
+          : `Could not load server guidelines (${error.message}). Showing this browser's saved copy.`;
+      }
+      console.warn("Could not load guidelines from backend:", error);
+    }
+
+    // ---- Sandbox ----
+    function updateSandbox() {
+      if (!sandboxInput || !sandboxFeedback) return;
+      const sample = sandboxInput.value.toLowerCase();
+      if (!sample) { sandboxFeedback.textContent = ""; sandboxFeedback.className = ""; return; }
+      const matched = restrictedRules.find(r => sample.includes(r.term.toLowerCase()));
       if (matched) {
-
         sandboxFeedback.className = "sandbox-fail";
-
         sandboxFeedback.textContent =
           `❌ Blocked: Contains restricted term "${matched.term}" (${matched.severity.toUpperCase()} severity).`;
-
       } else {
-
         sandboxFeedback.className = "sandbox-pass";
-
-        sandboxFeedback.textContent =
-          "✔ Passed: No restricted terms detected in test text.";
-
+        sandboxFeedback.textContent = "✔ Passed: No restricted terms detected in test text.";
       }
     }
 
-    // ---- Render Rule Chips ----
+    function updateCount() {
+      const count = $("rule-count");
+      if (count) count.textContent = `${restrictedRules.length} words · ${specLines().length} facts`;
+    }
 
     function renderChips() {
-
-      box.querySelectorAll(".chip").forEach(
-        chip => chip.remove()
-      );
-
+      box.querySelectorAll(".chip").forEach(chip => chip.remove());
       restrictedRules.forEach((rule, index) => {
-
         const chip = document.createElement("span");
-
         chip.className = `chip sev-${rule.severity}`;
-
         chip.innerHTML = `
           ${esc(rule.term)}
           <small>(${esc(rule.severity)})</small>
-
-          <button
-            type="button"
-            data-i="${index}"
-            aria-label="Remove ${esc(rule.term)}">
-            ×
-          </button>
-        `;
-
+          <button type="button" data-i="${index}" aria-label="Remove ${esc(rule.term)}">×</button>`;
         box.appendChild(chip);
-
       });
-
-      const count = $("rule-count");
-
-      if (count) {
-        count.textContent =
-          `${restrictedRules.length} words · ${specLines().length} facts`;
-      }
-
+      updateCount();
       updateSandbox();
     }
 
-    // ---- Add Restricted Rule ----
-
     function addRule(term, severity) {
-
       const value = term.trim().replace(/,$/, "");
-
       input.value = "";
-
       if (!value) return;
-
-      if (
-        restrictedRules.some(
-          rule => rule.term.toLowerCase() === value.toLowerCase()
-        )
-      ) {
-        return;
-      }
-
-      restrictedRules.push({
-        term: value,
-        severity: severity || "medium"
-      });
-
+      if (restrictedRules.some(r => r.term.toLowerCase() === value.toLowerCase())) return;
+      restrictedRules.push({ term: value, severity: severity || "medium" });
       renderChips();
     }
 
-    // ---- Input Events ----
-
     input.addEventListener("keydown", event => {
-
-      if (
-        event.key === "Enter" ||
-        event.key === ","
-      ) {
-
+      if (event.key === "Enter" || event.key === ",") {
         event.preventDefault();
-
-        addRule(
-          input.value,
-          severitySelect.value
-        );
-
+        addRule(input.value, severitySelect.value);
       }
-
     });
-
-    // ---- Remove Rules ----
 
     box.addEventListener("click", event => {
-
-      const removeButton =
-        event.target.closest("button[data-i]");
-
+      const removeButton = event.target.closest("button[data-i]");
       if (!removeButton) return;
-
-      restrictedRules.splice(
-        Number(removeButton.dataset.i),
-        1
-      );
-
+      restrictedRules.splice(Number(removeButton.dataset.i), 1);
       renderChips();
-
     });
 
-    // ---- Sandbox Events ----
+    sandboxInput?.addEventListener("input", updateSandbox);
+    specsInput.addEventListener("input", updateCount);
 
-    sandboxInput?.addEventListener(
-      "input",
-      updateSandbox
-    );
-
-    // ---- Approved Facts Counter ----
-
-    specsInput.addEventListener("input", () => {
-
-      const count = $("rule-count");
-
-      if (count) {
-        count.textContent =
-          `${restrictedRules.length} words · ${specLines().length} facts`;
-      }
-
-    });
-
-    // ---- Save Guidelines ----
-
-    form.addEventListener("submit", event => {
-
+    // ---- Save ----
+    form.addEventListener("submit", async event => {
       event.preventDefault();
-
-      if (input.value.trim()) {
-        addRule(
-          input.value,
-          severitySelect.value
-        );
-      }
+      if (input.value.trim()) addRule(input.value, severitySelect.value);
 
       const payload = {
-
-        ruleset_id: "org_default",
-
-        tone_prompt: toneInput.value.trim(),
-
-        restricted_terms: restrictedRules,
-
-        approved_facts: specLines().map(line => {
-
-          const parts = line.split(":");
-
-          return {
-            subject: parts[0]?.trim() || "General",
-            value: parts.slice(1).join(":").trim() || line
-          };
-
-        })
-
+        tone: toneInput.value.trim(),
+        restricted_words: restrictedRules.map(r => r.term),
+        approved_terms: approvedTerms,
+        approved_facts: linesToFacts(),
       };
 
-      Storage.save({
-
-        tone: payload.tone_prompt,
-
-        restricted_terms: payload.restricted_terms,
-
-        restricted_words:
-          payload.restricted_terms.map(
-            rule => rule.term
-          ),
-
-        approved_specs: specLines()
-
-      });
-
-      if (status) {
-        status.textContent = "Saved to schema ✔";
+      if (!payload.tone) {
+        setError(toneInput, "Tone is required.");
+        toneInput.focus();
+        return;
       }
+      clearError(toneInput);
 
-      notify(
-        "Guidelines saved successfully ✔",
-        "success"
-      );
+      const saveButton = form.querySelector('[type="submit"]');
+      if (saveButton) saveButton.disabled = true;
+      if (status) status.textContent = "Saving guidelines to server…";
 
+      try {
+        await ApiClient.endpoints.saveGuidelines(payload);
+        persistLocal();
+        if (status) status.textContent = "Saved to server ✔ · " + timeLabel();
+        notify("Guidelines saved successfully.", "success");
+      } catch (error) {
+        const msg = error.status === 403
+          ? "Only organisation Owners/Admins can edit guidelines."
+          : error.message || "Backend error";
+        if (status) status.textContent = `Save failed: ${msg}`;
+        notify(`Guidelines were not saved: ${msg}`, "error");
+      } finally {
+        if (saveButton) saveButton.disabled = false;
+      }
     });
 
     renderChips();
-
   }
+
+  // Quick-start presets used by the buttons in index.html's empty state.
+  window.loadSamplePreset = function (kind) {
+    const presets = {
+      social: "Our new NovaBook Pro is the cheapest laptop ever \u2013 guaranteed to last all day! #unbeatable",
+      release: "NovaBook Pro launches today with a 20 hours battery, a best in class 14-inch OLED display and a guaranteed 1.3 kg weight."
+    };
+    const editor = $("editor");
+    if (!editor || !presets[kind]) return;
+    editor.value = presets[kind];
+    editor.dispatchEvent(new Event("input", { bubbles: true }));
+    editor.focus();
+  };
 
   // ================= INITIALIZATION =================
 
-  document.addEventListener("DOMContentLoaded", () => {
+  const onReady = fn =>
+    document.readyState === "loading"
+      ? document.addEventListener("DOMContentLoaded", fn)
+      : fn();
 
-    if (window.ApiClient?.checkHealth) {
+  onReady(() => {
+    if (window.ApiClient?.checkHealth || typeof ApiClient !== "undefined") {
       ApiClient.checkHealth();
     }
 
     const page = document.body.dataset.page;
 
-    if (page === "workbench") {
+    if (page === "workbench" || $("analyse-btn")) {
       initWorkbench();
     }
 
-    if (page === "guidelines") {
+    if (page === "guidelines" || $("guidelines-form")) {
       initGuidelines();
     }
-
   });
 
+};
+
+// ---- Make sure every script app.js needs is present, whatever the HTML says ----
+(function () {
+  const deps = [
+    ["Utils", "js/utils.js", () => typeof Utils !== "undefined"],
+    ["Storage", "js/storage.js", () => typeof Storage !== "undefined" && typeof Storage.load === "function"],
+    ["SampleData", "js/sample-data.js", () => typeof SampleData !== "undefined"],
+    ["ApiClient", "js/api.js", () => typeof ApiClient !== "undefined"],
+  ];
+
+  const base = (() => {
+    const me = document.currentScript && document.currentScript.src;
+    return me ? me.replace(/app\.js(\?.*)?$/, "") : "js/";
+  })();
+
+  const load = src => new Promise((resolve, reject) => {
+    const el = document.createElement("script");
+    el.src = src;
+    el.onload = resolve;
+    el.onerror = () => reject(new Error("Could not load " + src));
+    document.head.appendChild(el);
+  });
+
+  (async () => {
+    try {
+      for (const [name, file, present] of deps) {
+        if (!present()) {
+          console.warn(`[BrandTrace] ${name} was not loaded by the page; loading ${file}`);
+          await load(base + file.replace(/^js\//, ""));
+        }
+      }
+      window.__btApp();
+    } catch (err) {
+      console.error("[BrandTrace] Startup failed:", err);
+      const b = document.createElement("div");
+      b.style.cssText = "position:fixed;top:0;left:0;right:0;padding:10px;background:#b91c1c;color:#fff;z-index:9999;font:14px sans-serif";
+      b.textContent = "BrandTrace failed to start: " + err.message;
+      document.body.appendChild(b);
+    }
+  })();
 })();

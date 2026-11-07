@@ -7,17 +7,20 @@
     if (!tbody) return;
 
     try {
-      const response = await ApiClient.request("GET", "/organisations/1/history");
+      const orgId = ApiClient.getOrgId();
+      const response = await ApiClient.request("GET", `/organisations/${orgId}/history`);
       cachedReviews = response.reviews || response.history || response || [];
-
-      if (!Array.isArray(cachedReviews) || cachedReviews.length === 0) {
-        cachedReviews = getMockHistoryList();
-      }
-
+      if (!Array.isArray(cachedReviews)) cachedReviews = [];
       renderTable(cachedReviews);
     } catch (err) {
-      cachedReviews = getMockHistoryList();
-      renderTable(cachedReviews);
+      if (ApiClient.isMock || ApiClient.isOffline(err)) {
+        cachedReviews = getMockHistoryList();
+        renderTable(cachedReviews);
+      } else {
+        cachedReviews = [];
+        renderTable([]);
+        toast("Could not load history: " + err.message, "error");
+      }
     }
   }
 
@@ -33,14 +36,6 @@
           { category: "Restricted Word", severity: "high", original_text: "cheapest", suggestion: "most affordable", explanation: "Price superlatives create legal exposure." },
           { category: "Factual Mismatch", severity: "high", original_text: "guaranteed battery life", suggestion: "up to 12 hours battery life", explanation: "Exceeds approved spec limit." }
         ]
-      },
-      {
-        id: 100,
-        created_at: "2026-11-05 09:15",
-        author_id: "usr_rohit_04",
-        overall_status: "Passed Initial Checks",
-        submitted_content: "NovaBook Pro features up to 12 hours battery life and a stunning OLED display.",
-        issues: []
       }
     ];
   }
@@ -66,8 +61,8 @@
     }
 
     tbody.innerHTML = filtered.map(item => {
-      const reviewId = item.id || item.review_id || "101";
-      const dateStr = item.created_at ? new Date(item.created_at).toLocaleDateString() : "2026-11-06";
+      const reviewId = item.id || item.review_id || "—";
+      const dateStr = item.created_at ? new Date(item.created_at).toLocaleString() : "—";
       const excerpt = item.submitted_content ? esc(item.submitted_content.substring(0, 45)) + "..." : "Draft Copy";
       const issuesCount = Array.isArray(item.issues) ? item.issues.length : 0;
       const status = item.overall_status || "Needs Review";
@@ -92,11 +87,16 @@
   }
 
   function updateMetrics(list) {
-    document.getElementById("hist-total").textContent = list.length;
-    document.getElementById("hist-passed").textContent = list.filter(i => (i.overall_status || "").toLowerCase().includes("pass")).length;
-    document.getElementById("hist-attention").textContent = list.filter(i => (i.overall_status || "").toLowerCase().includes("need")).length;
-    document.getElementById("hist-approved").textContent = list.filter(i => (i.overall_status || "").toLowerCase().includes("approve")).length;
-  }
+  const totalEl = document.getElementById("hist-total");
+  const passedEl = document.getElementById("hist-passed");
+  const attentionEl = document.getElementById("hist-attention");
+  const approvedEl = document.getElementById("hist-approved");
+
+  if (totalEl) totalEl.textContent = list.length;
+  if (passedEl) passedEl.textContent = list.filter(i => (i.overall_status || "").toLowerCase().includes("pass")).length;
+  if (attentionEl) attentionEl.textContent = list.filter(i => (i.overall_status || "").toLowerCase().includes("need")).length;
+  if (approvedEl) approvedEl.textContent = list.filter(i => (i.overall_status || "").toLowerCase().includes("approve")).length;
+}
 
   window.openReviewDrawer = function(id) {
     const review = cachedReviews.find(r => String(r.id || r.review_id) === String(id)) || cachedReviews[0];
@@ -156,7 +156,6 @@
         loadHistory();
       });
 
-      // Robust event delegation for View Details buttons
       document.getElementById("history-tbody")?.addEventListener("click", (e) => {
         const btn = e.target.closest(".view-details-btn");
         if (btn) {
@@ -165,7 +164,6 @@
         }
       });
 
-      // Search filter handler
       document.getElementById("history-search")?.addEventListener("input", (e) => {
         renderTable(cachedReviews, e.target.value.trim());
       });

@@ -1,0 +1,105 @@
+/* Mobile navigation drawer. Loaded automatically by nav.js.
+   Keep this breakpoint in sync with MOBILE_BREAKPOINT in nav.js
+   and with the existing sidebar media query in dashboard.css. */
+
+.sidebar-backdrop { display: none; }
+
+@media (max-width: 900px) {
+
+  /* The hamburger and topbar must always be reachable on small screens. */
+  .app-topbar {
+    display: flex !important;
+    position: sticky;
+    top: 0;
+    z-index: 900;
+    align-items: center;
+    justify-content: space-between;
+    left: 0;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  /* Stop wide content (tables, code) from scrolling the whole page sideways,
+     which drags the topbar's left edge, and the menu button, out of view. */
+  html, body { overflow-x: hidden; }
+  .app-main-container,
+  .app-content-area { min-width: 0; max-width: 100%; }
+  .table-responsive { overflow-x: auto; max-width: 100%; }
+
+  /* Menu button always first and flush left; right-hand controls stay right. */
+  .hamburger-btn {
+    order: -1;
+    margin: 0 auto 0 0 !important;
+    flex: 0 0 auto;
+  }
+  .topbar-right { margin-left: auto; flex: 0 0 auto; }
+
+  .hamburger-btn {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    min-width: 44px;
+    min-height: 44px;
+    font-size: 1.25rem;
+    cursor: pointer;
+  }
+
+  /* Sidebar becomes an off-canvas drawer. */
+  .app-sidebar {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: min(290px, 85vw);
+    overflow-y: auto;
+    background: var(--surface, var(--bg, #fff));
+    transform: translateX(-100%);
+    visibility: hidden;
+    transition: transform .25s ease, visibility 0s linear .25s;
+    z-index: 1000;
+  }
+
+  .app-sidebar.mobile-open {
+    transform: translateX(0);
+    visibility: visible;
+    transition: transform .25s ease, visibility 0s;
+    box-shadow: 8px 0 32px rgba(0, 0, 0, .25);
+  }
+
+  /* Dim the page behind the drawer; tapping it closes the drawer. */
+  .sidebar-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, .45);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .25s ease;
+    z-index: 999;
+  }
+
+  body.nav-open .sidebar-backdrop {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  body.nav-open { overflow: hidden; }
+
+  /* The content takes the full width because the sidebar no longer reserves space. */
+  .app-main-container {
+    margin-left: 0 !important;
+    width: 100%;
+  }
+
+  /* Footer links wrap instead of overflowing on narrow screens. */
+  .saas-enterprise-footer .footer-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 16px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .app-sidebar,
+  .sidebar-backdrop { transition: none; }
+}

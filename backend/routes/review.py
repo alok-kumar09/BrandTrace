@@ -1,10 +1,8 @@
-
-
 from flask import Blueprint, request, jsonify
 from database import db
 from models import Organisation, BrandGuideline, ReviewHistory
-import json
 from services.access_control import organisation_member_required
+import json
 
 review_bp = Blueprint("review", __name__)
 
@@ -15,7 +13,6 @@ def analyze():
 
     data = request.get_json(silent=True)
 
-    # Validate incoming request
     if not isinstance(data, dict):
         return jsonify({"error": "Valid JSON is required"}), 400
 
@@ -29,13 +26,11 @@ def analyze():
         return jsonify({"error": "Content cannot be empty"}), 400
 
     try:
-        # Find organisation
         organisation = db.session.get(Organisation, organisation_id)
 
         if organisation is None:
             return jsonify({"error": "Organisation not found"}), 404
 
-        # Retrieve saved guidelines
         guideline = BrandGuideline.query.filter_by(
             organisation_id=organisation_id
         ).order_by(BrandGuideline.id.desc()).first()
@@ -43,7 +38,6 @@ def analyze():
         if guideline is None:
             return jsonify({"error": "No brand guidelines found"}), 404
 
-        # Convert stored JSON text into Python data
         guidelines = {
             "tone": guideline.tone,
             "restricted_words": json.loads(guideline.restricted_words),
@@ -51,12 +45,10 @@ def analyze():
             "approved_facts": json.loads(guideline.approved_facts)
         }
 
-        # Connect to teammate's analyzer
         from analyzer import analyze_content
 
         result = analyze_content(content, guidelines)
 
-        # Validate analyzer response
         required_keys = ["issues", "suggestions", "overall_status"]
 
         if not isinstance(result, dict):
@@ -74,11 +66,44 @@ def analyze():
         if not isinstance(result["overall_status"], str):
             raise ValueError("Invalid review status")
 
-        # Save review history
+        # Convert analyzer output into the frontend's expected format.
+        frontend_issues = []
+
+        for index, issue in enumerate(result["issues"]):
+            if not isinstance(issue, dict):
+                continue
+
+            suggestion_data = (
+                result["suggestions"][index]
+                if index < len(result["suggestions"])
+                and isinstance(result["suggestions"][index], dict)
+                else {}
+            )
+
+            frontend_issues.append({
+                "id": index + 1,
+                "category": issue.get("type", "Issue"),
+                "severity": str(issue.get("severity", "low")).lower(),
+                "original_text": (
+                    suggestion_data.get("original")
+                    or issue.get("original_text")
+                    or issue.get("evidence", "")
+                ),
+                "explanation": (
+                    issue.get("evidence")
+                    or issue.get("message", "")
+                ),
+                "suggestion": (
+                    suggestion_data.get("replacement")
+                    or issue.get("suggestion", "")
+                )
+            })
+
+        # Save the frontend-compatible issues.
         review = ReviewHistory(
             organisation_id=organisation_id,
             submitted_content=content,
-            issues=json.dumps(result["issues"]),
+            issues=json.dumps(frontend_issues),
             suggestions=json.dumps(result["suggestions"]),
             overall_status=result["overall_status"]
         )
@@ -86,11 +111,10 @@ def analyze():
         db.session.add(review)
         db.session.commit()
 
-        # Return results to frontend
         return jsonify({
             "review_id": review.id,
             "organisation_id": organisation_id,
-            "issues": result["issues"],
+            "issues": frontend_issues,
             "suggestions": result["suggestions"],
             "overall_status": result["overall_status"]
         }), 200
@@ -109,6 +133,7 @@ def analyze():
 
     except Exception:
         db.session.rollback()
+
         return jsonify({
             "error": "Content analysis failed"
         }), 500

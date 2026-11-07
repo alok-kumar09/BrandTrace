@@ -1,9 +1,11 @@
-
 (function () {
   "use strict";
 
   const THEME_KEY = "brandtrace.theme";
   const SESSION_KEY = "brandtrace.session";
+
+  // Must match the breakpoint in css/nav-mobile.css
+  const MOBILE_BREAKPOINT = 900;
 
   const safe = fn => {
     try {
@@ -45,14 +47,15 @@
       ? session.org.trim()
       : "NovaTech Devices";
 
+  // Every item is now its own real page, so active-state is a plain filename match.
   const navLinks = [
-    { href: "index.html", label: "Dashboard", icon: "📊" },
-    { href: "index.html#workbench", label: "Content Analysis", icon: "🔍" },
-    { href: "guidelines.html", label: "Brand Guidelines", icon: "⚙️" },
-    { href: "history.html", label: "Review History", icon: "📜" },
-    { href: "approvals.html", label: "Review Approvals", icon: "🛡️" },
-    { href: "settings.html", label: "Organisation & Members", icon: "👥" },
-    { href: "about.html", label: "Governance & About", icon: "ℹ️" }
+    { href: "dashboard.html",  label: "Dashboard",              icon: "📊" },
+    { href: "index.html",      label: "Content Analysis",       icon: "🔍" },
+    { href: "guidelines.html", label: "Brand Guidelines",       icon: "⚙️" },
+    { href: "history.html",    label: "Review History",         icon: "📜" },
+    { href: "approvals.html",  label: "Review Approvals",       icon: "🛡️" },
+    { href: "settings.html",   label: "Organisation & Members", icon: "👥" },
+    { href: "about.html",      label: "Governance & About",     icon: "ℹ️" }
   ];
 
   const current = location.pathname.split("/").pop() || "index.html";
@@ -71,12 +74,32 @@
     current === "landing.html" ||
     current === "auth.html";
 
+  // ---- Auth guard: protected pages need a real JWT (or explicit offline demo) ----
+  const looksLikeJwt = t => typeof t === "string" && t.split(".").length === 3;
+  const offlineDemo = safe(() => localStorage.getItem("brandtrace.forceMock")) === "1" && session.mock === true;
+  const hasSession = looksLikeJwt(session.access_token || session.token) || offlineDemo;
+
+  if (!isPublicPage && !hasSession) {
+    // Drop any stale/mock session so the login page starts clean.
+    safe(() => localStorage.removeItem(SESSION_KEY));
+    location.replace("auth.html?reason=signin");
+    return;
+  }
+
   // ---- Inject Internal Application Shell ----
   if (!isPublicPage) {
     document.body.classList.add("app-shell-layout");
 
+    // Mobile navigation styles load themselves, so no HTML file needs editing.
+    if (!document.querySelector('link[href$="nav-mobile.css"]')) {
+      const link = document.createElement("link");
+      link.rel = "stylesheet";
+      link.href = "css/nav-mobile.css";
+      document.head.appendChild(link);
+    }
+
     const sidebarHTML = `
-      <aside class="app-sidebar" id="app-sidebar">
+      <aside class="app-sidebar" id="app-sidebar" aria-label="Sidebar">
 
         <div class="sidebar-header">
           <a class="logo" href="landing.html">
@@ -91,17 +114,12 @@
         <nav class="sidebar-nav" aria-label="Main SaaS Navigation">
 
           ${navLinks.map(link => {
-            const active =
-              link.href === current ||
-              (
-                link.href === "index.html#workbench" &&
-                current === "index.html" &&
-                location.hash === "#workbench"
-              );
+            const active = link.href === current;
 
             return `
               <a href="${link.href}"
-                 class="nav-item${active ? " active" : ""}">
+                 class="nav-item${active ? " active" : ""}"
+                 ${active ? 'aria-current="page"' : ""}>
 
                 <span class="icon">${link.icon}</span>
                 <span class="label">${link.label}</span>
@@ -115,7 +133,7 @@
         <div class="sidebar-footer">
 
           <div id="backend-status" class="status-badge-pill">
-            🟡 Live API
+            ⏳ Checking server…
           </div>
 
           <div class="sidebar-user">
@@ -142,6 +160,8 @@
         </div>
 
       </aside>
+
+      <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
     `;
 
     const topbarHTML = `
@@ -151,7 +171,9 @@
           id="sidebar-toggle"
           class="hamburger-btn"
           type="button"
-          aria-label="Toggle Navigation">
+          aria-label="Open navigation menu"
+          aria-controls="app-sidebar"
+          aria-expanded="false">
           ☰
         </button>
 
@@ -165,7 +187,7 @@
             🌙
           </button>
 
-          <a href="index.html#workbench"
+          <a href="index.html"
              class="btn btn-primary btn-sm">
             🚀 New Audit
           </a>
@@ -192,17 +214,10 @@
       contentArea.appendChild(mainEl);
     }
 
-    document.body.insertAdjacentHTML(
-      "afterbegin",
-      sidebarHTML
-    );
+    document.body.insertAdjacentHTML("afterbegin", sidebarHTML);
+    contentArea.insertAdjacentHTML("afterbegin", topbarHTML);
 
-    contentArea.insertAdjacentHTML(
-      "afterbegin",
-      topbarHTML
-    );
-
-    // ---- Enterprise Footer ----
+    // ---- Enterprise Footer (now lists every page, so it is a true fallback) ----
     if (!document.querySelector(".saas-enterprise-footer")) {
 
       wrapper.insertAdjacentHTML("beforeend", `
@@ -214,10 +229,7 @@
           </div>
 
           <div class="footer-links">
-            <a href="index.html">Dashboard</a>
-            <a href="guidelines.html">Guidelines</a>
-            <a href="history.html">History Log</a>
-            <a href="approvals.html">Approvals</a>
+            ${navLinks.map(l => `<a href="${l.href}">${l.label}</a>`).join("")}
           </div>
 
         </footer>
@@ -241,9 +253,7 @@
 
     document.documentElement.dataset.theme = theme;
 
-    safe(() =>
-      localStorage.setItem(THEME_KEY, theme)
-    );
+    safe(() => localStorage.setItem(THEME_KEY, theme));
 
     paintThemeButtons();
   };
@@ -254,44 +264,49 @@
     button.addEventListener("click", toggleTheme);
   });
 
-  // ---- Mobile Sidebar ----
+  // ---- Mobile Sidebar (drawer + backdrop) ----
   const sidebar = document.getElementById("app-sidebar");
   const toggleButton = document.getElementById("sidebar-toggle");
+  const backdrop = document.getElementById("sidebar-backdrop");
 
-  const closeMobileSidebar = () => {
-    sidebar?.classList.remove("mobile-open");
+  const setNavOpen = open => {
+    if (!sidebar) return;
+    sidebar.classList.toggle("mobile-open", open);
+    document.body.classList.toggle("nav-open", open);
+    toggleButton?.setAttribute("aria-expanded", String(open));
+    toggleButton?.setAttribute("aria-label", open ? "Close navigation menu" : "Open navigation menu");
+    if (toggleButton) toggleButton.textContent = open ? "✕" : "☰";
   };
 
-  toggleButton?.addEventListener("click", event => {
-    event.stopPropagation();
-    sidebar?.classList.toggle("mobile-open");
+  toggleButton?.addEventListener("click", () => {
+    setNavOpen(!sidebar.classList.contains("mobile-open"));
   });
+
+  backdrop?.addEventListener("click", () => setNavOpen(false));
 
   sidebar?.querySelectorAll("a").forEach(link => {
-    link.addEventListener("click", closeMobileSidebar);
+    link.addEventListener("click", () => setNavOpen(false));
   });
 
-  document.addEventListener("click", event => {
-
-    if (
-      sidebar?.classList.contains("mobile-open") &&
-      !sidebar.contains(event.target) &&
-      event.target !== toggleButton
-    ) {
-      closeMobileSidebar();
-    }
-
+  document.addEventListener("keydown", event => {
+    if (event.key === "Escape") setNavOpen(false);
   });
+
+  // Rotating a tablet or widening the window must never leave the drawer "stuck" open.
+  if (window.matchMedia) {
+    window
+      .matchMedia(`(min-width: ${MOBILE_BREAKPOINT + 1}px)`)
+      .addEventListener("change", e => { if (e.matches) setNavOpen(false); });
+  }
 
   // ---- Sign Out ----
-  document.querySelectorAll(
-    "#logout-btn, [data-logout]"
-  ).forEach(button => {
+  document.querySelectorAll("#logout-btn, [data-logout]").forEach(button => {
 
     button.addEventListener("click", () => {
 
       safe(() => {
         localStorage.removeItem(SESSION_KEY);
+        localStorage.removeItem("brandtrace.forceMock");
       });
 
       location.href = "auth.html";
@@ -303,9 +318,7 @@
   // ---- Backend Status ----
   window.setBackendStatus = function (live) {
 
-    const element = document.getElementById(
-      "backend-status"
-    );
+    const element = document.getElementById("backend-status");
 
     if (!element) return;
 

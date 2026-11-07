@@ -1,9 +1,7 @@
-
-
 from flask import Blueprint, request, jsonify
 from database import db
 from models import Organisation, ReviewHistory
-from services.access_control import organisation_member_required
+from services.access_control import organisation_admin_required
 
 approvals_bp = Blueprint("approvals", __name__)
 
@@ -12,7 +10,7 @@ approvals_bp = Blueprint("approvals", __name__)
     "/api/approvals/<int:review_id>",
     methods=["PUT"]
 )
-@organisation_member_required
+@organisation_admin_required
 def update_approval(review_id):
 
     data = request.get_json(silent=True)
@@ -20,12 +18,21 @@ def update_approval(review_id):
     if not isinstance(data, dict):
         return jsonify({"error": "Valid JSON is required"}), 400
 
-    status = data.get("status")
+    # Accept both frontend and backend field names.
+    status = data.get("approval_status", data.get("status"))
     organisation_id = data.get("organisation_id")
 
-    if status not in ["Approved", "Rejected"]:
+    if isinstance(status, str):
+        status = status.strip().lower()
+
+    status_mapping = {
+        "approved": "Approved",
+        "rejected": "Rejected"
+    }
+
+    if status not in status_mapping:
         return jsonify({
-            "error": "Status must be Approved or Rejected"
+            "error": "Approval status must be approved or rejected"
         }), 400
 
     if not isinstance(organisation_id, int) or isinstance(organisation_id, bool):
@@ -48,7 +55,7 @@ def update_approval(review_id):
         if review is None:
             return jsonify({"error": "Review not found"}), 404
 
-        review.overall_status = status
+        review.overall_status = status_mapping[status]
 
         db.session.commit()
 
@@ -64,4 +71,3 @@ def update_approval(review_id):
         return jsonify({
             "error": "Could not save review decision"
         }), 500
-

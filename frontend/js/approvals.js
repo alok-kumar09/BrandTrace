@@ -1,113 +1,124 @@
 (function () {
   const { esc, toast } = Utils;
 
+  const norm = s => String(s || "").toLowerCase();
+  const isPending = i => /pending|need|review/.test(norm(i.overall_status));
+  const isApproved = i => norm(i.overall_status).includes("approve");
+  const isRejected = i => norm(i.overall_status).includes("reject");
+
+  function setCounts(all) {
+    const set = (id, n) => { const el = document.getElementById(id); if (el) el.textContent = n; };
+    set("appr-pending", all.filter(isPending).length);
+    set("appr-signed", all.filter(isApproved).length);
+    set("appr-rejected", all.filter(isRejected).length);
+  }
+
+  function emptyState(container, msg) {
+    container.innerHTML = `
+      <div class="empty-state">
+        <div class="icon">✅</div>
+        <h3>${esc(msg)}</h3>
+        <p>New audits that need sign-off will appear here.</p>
+      </div>`;
+  }
+
   async function loadApprovals() {
     const container = document.getElementById("approvals-container");
     if (!container) return;
 
     try {
-      // Fetch history or approvals queue from backend
-      const res = await ApiClient.request("GET", "/organisations/1/history");
-      const items = (res.reviews || res.history || res || []).filter(i => {
-        const st = (i.overall_status || "").toLowerCase();
-        return st.includes("pending") || st.includes("need") || st.includes("review");
-      });
-
-      if (items.length === 0) {
-        // Render rich mock approval cards if backend queue is empty
-        renderMockApprovals(container);
-        return;
-      }
-
+      const res = await ApiClient.endpoints.fetchHistory();
+      const all = res.reviews || res.history || (Array.isArray(res) ? res : []);
+      setCounts(all);
+      const items = all.filter(isPending);
+      if (!items.length) return emptyState(container, "No reviews waiting for approval");
       renderQueue(container, items);
     } catch (err) {
-      console.warn("[BrandTrace] Failed to fetch live approvals, rendering interactive mock queue:", err.message);
-      renderMockApprovals(container);
+      if (ApiClient.isMock || ApiClient.isOffline(err)) {
+        console.warn("[BrandTrace] Offline — showing demo approvals:", err.message);
+        renderMockApprovals(container);
+      } else {
+        container.innerHTML = `<div class="empty-state"><div class="icon">⚠️</div>
+          <h3>Could not load approvals</h3><p>${esc(err.message)}</p></div>`;
+        toast("Could not load approvals: " + err.message, "error");
+      }
     }
   }
 
-  function renderMockApprovals(container) {
-    const mockQueue = [
-      {
-        id: 12,
-        submitted_content: "Introducing NovaBook Pro, the cheapest laptop on the market with guaranteed battery life.",
-        issues: [
-          { category: "Restricted Word", severity: "high", original_text: "cheapest", suggestion: "most affordable" },
-          { category: "Factual Mismatch", severity: "high", original_text: "guaranteed battery life", suggestion: "up to 12 hours battery life" }
-        ],
-        overall_status: "Pending Manager Sign-off",
-        created_at: "2026-11-06 14:30"
-      }
-    ];
-
-    document.getElementById("appr-pending").textContent = mockQueue.length;
-    document.getElementById("appr-signed").textContent = 2;
-    document.getElementById("appr-rejected").textContent = 1;
-
-    container.innerHTML = mockQueue.map(item => `
-      <article class="issue-card sev-high" data-id="${item.id}" style="margin-bottom: 20px;">
-        <div class="issue-head">
-          <span class="category">Review #${item.id} · Marketing Campaign Copy</span>
-          <span class="badge high">Pending High Risk Sign-off</span>
-        </div>
-        <div class="label">Submitted Draft Excerpt</div>
-        <div style="background: var(--surface-alt); padding: 10px; border-radius: 6px; font-family: var(--mono); font-size: 0.9rem; margin-bottom: 12px;">
-          ${esc(item.submitted_content)}
-        </div>
-        <div class="label">Flagged Issues (${item.issues.length})</div>
-        <ul style="margin-left: 20px; font-size: 0.9rem; margin-bottom: 16px; color: var(--text);">
-          ${item.issues.map(iss => `<li><strong>${esc(iss.category)}</strong> (${iss.severity}): Replace <span style="color:var(--danger)">"${esc(iss.original_text)}"</span> with <span style="color:var(--success)">"${esc(iss.suggestion)}"</span></li>`).join("")}
-        </ul>
-        <div class="issue-actions">
-          <button class="btn btn-success btn-sm" onclick="handleApprovalAction(${item.id}, 'approved')">✔ Approve &amp; Release</button>
-          <button class="btn btn-ghost-danger btn-sm" onclick="handleApprovalAction(${item.id}, 'rejected')">✖ Reject Draft</button>
-        </div>
-      </article>
-    `).join("");
+  function issuesList(issues) {
+    if (!Array.isArray(issues) || !issues.length) return "";
+    return `
+      <div class="label">Flagged Issues (${issues.length})</div>
+      <ul style="margin-left:20px;font-size:.9rem;margin-bottom:16px;color:var(--text);">
+        ${issues.map(i => `<li><strong>${esc(i.category || "Issue")}</strong> (${esc(i.severity || "low")}):
+          ${i.original_text ? `<span style="color:var(--danger)">"${esc(i.original_text)}"</span>` : ""}
+          ${i.suggestion ? ` → <span style="color:var(--success)">"${esc(i.suggestion)}"</span>` : ""}</li>`).join("")}
+      </ul>`;
   }
 
-  function renderQueue(container, items) {
-    document.getElementById("appr-pending").textContent = items.length;
-    container.innerHTML = items.map(item => `
-      <article class="issue-card sev-high" data-id="${item.id || item.review_id}">
+  function card(item) {
+    const id = item.id || item.review_id;
+    return `
+      <article class="issue-card sev-high" data-id="${esc(id)}" style="margin-bottom:20px;">
         <div class="issue-head">
-          <span class="category">Review #${item.id || item.review_id}</span>
-          <span class="badge high">${esc(item.overall_status)}</span>
+          <span class="category">Review #${esc(id)}</span>
+          <span class="badge high">${esc(item.overall_status || "Pending")}</span>
         </div>
         <div class="label">Submitted Content</div>
-        <p style="margin-bottom: 12px;">${esc(item.submitted_content || "")}</p>
-        <div class="issue-actions">
-          <button class="btn btn-success btn-sm" onclick="handleApprovalAction(${item.id || item.review_id}, 'approved')">✔ Approve</button>
-          <button class="btn btn-ghost-danger btn-sm" onclick="handleApprovalAction(${item.id || item.review_id}, 'rejected')">✖ Reject</button>
+        <div style="background:var(--surface-alt);padding:10px;border-radius:6px;font-family:var(--mono);font-size:.9rem;margin-bottom:12px;">
+          ${esc(item.submitted_content || "")}
         </div>
-      </article>
-    `).join("");
+        ${issuesList(item.issues)}
+        <div class="issue-actions">
+          <button class="btn btn-success btn-sm" data-decision="approved" data-review="${esc(id)}" type="button">✔ Approve &amp; Release</button>
+          <button class="btn btn-ghost-danger btn-sm" data-decision="rejected" data-review="${esc(id)}" type="button">✖ Reject Draft</button>
+        </div>
+      </article>`;
   }
 
-  // Global handler for approving/rejecting via PUT /api/approvals/1
-  window.handleApprovalAction = async function(reviewId, status) {
+  function renderQueue(container, items) { container.innerHTML = items.map(card).join(""); }
+
+  function renderMockApprovals(container) {
+    const mock = [{
+      id: 12,
+      submitted_content: "Introducing NovaBook Pro, the cheapest laptop on the market with guaranteed battery life.",
+      issues: [
+        { category: "Restricted Word", severity: "high", original_text: "cheapest", suggestion: "most affordable" },
+        { category: "Factual Mismatch", severity: "high", original_text: "guaranteed battery life", suggestion: "up to 12 hours battery life" },
+      ],
+      overall_status: "Needs Review",
+    }];
+    setCounts(mock);
+    renderQueue(container, mock);
+  }
+
+  async function decide(reviewId, status) {
     try {
-      // Connects to PUT /api/approvals/<review_id>
-      await ApiClient.request("PUT", `/approvals/${reviewId}`, {
-        organisation_id: 1,
-        approval_status: status
-      });
-      toast(`Review #${reviewId} successfully marked as ${status} ✔`);
+      await ApiClient.endpoints.decideReview(reviewId, status);
+      toast(`Review #${reviewId} marked as ${status} ✔`);
       loadApprovals();
     } catch (err) {
-      console.warn("Backend approval sync error, simulating local update:", err.message);
-      toast(`Review #${reviewId} successfully marked as ${status} ✔`);
-      document.querySelector(`[data-id="${reviewId}"]`)?.remove();
+      if (ApiClient.isMock) {
+        toast(`Review #${reviewId} marked as ${status} (offline demo)`);
+        document.querySelector(`[data-id="${reviewId}"]`)?.remove();
+        return;
+      }
+      toast(err.status === 403
+        ? "Only organisation Owners/Admins can approve or reject reviews."
+        : "Could not save decision: " + err.message, "error");
     }
-  };
+  }
 
   document.addEventListener("DOMContentLoaded", () => {
-    if (document.body.dataset.page === "approvals") {
+    if (document.body.dataset.page !== "approvals") return;
+    loadApprovals();
+    document.getElementById("refresh-approvals-btn")?.addEventListener("click", () => {
+      toast("Refreshing approvals queue...");
       loadApprovals();
-      document.getElementById("refresh-approvals-btn")?.addEventListener("click", () => {
-        toast("Refreshing approvals queue...");
-        loadApprovals();
-      });
-    }
+    });
+    document.getElementById("approvals-container")?.addEventListener("click", e => {
+      const b = e.target.closest("[data-decision]");
+      if (b) decide(b.dataset.review, b.dataset.decision);
+    });
   });
 })();

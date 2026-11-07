@@ -5,6 +5,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const result = document.getElementById("hero-test-result");
 
   function runTest() {
+    if (!input || !result) return;
     const val = input.value.toLowerCase();
     const violations = [];
     if (val.includes("cheapest")) violations.push("“cheapest” (Restricted Price Superlative)");
@@ -28,6 +29,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function goToSlide(n) {
     currentSlide = n;
+    if (!track) return;
     track.style.transform = `translateX(-${currentSlide * 100}%)`;
     dots.forEach((d, i) => d.classList.toggle("active", i === currentSlide));
   }
@@ -36,16 +38,20 @@ document.addEventListener("DOMContentLoaded", () => {
     dot.addEventListener("click", () => goToSlide(index));
   });
 
-  setInterval(() => {
-    currentSlide = (currentSlide + 1) % dots.length;
-    goToSlide(currentSlide);
-  }, 5000);
+  if (track && dots.length) {
+    setInterval(() => {
+      currentSlide = (currentSlide + 1) % dots.length;
+      goToSlide(currentSlide);
+    }, 5000);
+  }
 });
 
 
 
 
-// Hero Text Slider Logic
+  // Hero Text Slider Logic
+  document.addEventListener("DOMContentLoaded", () => {
+  // Hero Text Slider Logic
   const heroSlides = document.querySelectorAll(".hero-slide");
   const heroDots = document.querySelectorAll(".hero-dot");
   let currentHeroSlide = 0;
@@ -85,3 +91,4 @@ document.addEventListener("DOMContentLoaded", () => {
   if (heroSlides.length > 0) {
     startHeroAutoPlay();
   }
+});

@@ -17,6 +17,10 @@ class Organisation(db.Model):
         nullable=False
     )
 
+    industry = db.Column(db.String(100), nullable=True)
+    website = db.Column(db.String(255), nullable=True)
+    governance_contact = db.Column(db.String(150), nullable=True)
+
     created_at = db.Column(
         db.DateTime(timezone=True),
         default=lambda: datetime.now(timezone.utc)

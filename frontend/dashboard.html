@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>BrandTrace – Dashboard</title>
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/dashboard.css">
+  <link rel="stylesheet" href="css/pages.css">
+  <script>
+    document.documentElement.dataset.theme = localStorage.getItem("brandtrace.theme") || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+  </script>
+</head>
+
+<body data-page="dashboard">
+  <main class="container">
+    <div class="page-head">
+      <h1 id="dash-title">Dashboard</h1>
+      <p>Where your brand reviews stand right now, and what needs a decision.</p>
+    </div>
+
+    <!-- Filled by dashboard.js when something needs attention (offline, no guidelines) -->
+    <div id="dash-notice"></div>
+
+    <div class="stats-row">
+      <div class="stat">
+        <div class="value" id="dash-total">–</div>
+        <div class="name">Total audits</div>
+      </div>
+      <div class="stat danger">
+        <div class="value" id="dash-attention">–</div>
+        <div class="name">Awaiting a decision</div>
+      </div>
+      <div class="stat ok">
+        <div class="value" id="dash-approved">–</div>
+        <div class="name">Approved</div>
+      </div>
+      <div class="stat brand">
+        <div class="value" id="dash-rejected">–</div>
+        <div class="name">Rejected</div>
+      </div>
+    </div>
+
+    <section class="card">
+      <div class="panel-title" style="margin-bottom: 16px; flex-wrap: wrap; gap: 12px;">
+        <h2>Recent audits</h2>
+        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+          <a class="btn btn-secondary btn-sm" href="history.html">View full history</a>
+          <a class="btn btn-primary btn-sm" href="index.html">Start a new audit</a>
+        </div>
+      </div>
+
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
+            <tr>
+              <th style="width: 10%;">ID</th>
+              <th style="width: 20%;">Date</th>
+              <th style="width: 40%;">Content</th>
+              <th style="width: 12%;">Issues</th>
+              <th style="width: 18%;">Status</th>
+            </tr>
+          </thead>
+          <tbody id="dash-recent">
+            <tr>
+              <td colspan="5" style="text-align: center; padding: 32px; color: var(--muted);">Loading…</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <script src="js/nav.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/dashboard.js"></script>
+</body>
+
+</html>

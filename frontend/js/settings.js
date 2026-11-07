@@ -1,8 +1,10 @@
 (function () {
   const { store, debounce, toast, setError, clearError, timeLabel, esc } = Utils;
-  const SESSION = "brandtrace.session", LOGS_KEY = "brandtrace.activity_logs.v1";
+  const SESSION = "brandtrace.session";
   
   const form = document.getElementById("settings-form");
+  if (!form) return;
+
   const fields = [...form.querySelectorAll("[name]")];
   const submit = form.querySelector("[type=submit]");
   const status = document.createElement("span"); 
@@ -15,11 +17,10 @@
   // --- Load Organisation Details & Members from Backend ---
   async function loadOrgData() {
     try {
-      // Calls GET /api/organisations/1
-      const orgData = await ApiClient.request("GET", "/organisations/1");
+      const orgId = ApiClient.getOrgId();
+      const orgData = await ApiClient.endpoints.fetchOrganisation(orgId);
       
       if (orgData) {
-        // Populate form fields if returned from backend
         if (orgData.name) document.getElementById("org_name").value = orgData.name;
         if (orgData.industry) document.getElementById("industry").value = orgData.industry;
         if (orgData.website) document.getElementById("website").value = orgData.website;
@@ -28,17 +29,15 @@
         }
       }
 
-      // Render members table if available in response
-      const members = orgData.members || orgData.users || [
-        { name: session?.name || "Priya Sharma", email: session?.email || "priya@example.com", role: session?.role || "Brand Manager", created_at: "2026-10-01" }
-      ];
-      renderMembers(members);
+      renderMembers(orgData.members || []);
 
     } catch (err) {
-      console.warn("[BrandTrace] Failed to fetch live organisation details, using fallback session data:", err.message);
-      renderMembers([
-        { name: session?.name || "Demo Judge", email: session?.email || "judge@brandtrace.demo", role: session?.role || "Brand Manager", created_at: "2026-10-15" }
-      ]);
+      console.warn("[BrandTrace] Failed to fetch organisation details:", err.message);
+      // Only show the signed-in user as a placeholder when the server is unreachable.
+      renderMembers(ApiClient.isOffline(err) && session ? [
+        { name: session.name, email: session.email, role: session.role, created_at: null }
+      ] : []);
+      toast("Could not load organisation: " + err.message, "error");
     }
   }
 
@@ -61,55 +60,68 @@
     `).join("");
   }
 
-  // --- Handle Adding a Member (`POST /api/organisations/1/members`) ---
+  // --- Handle Adding a Member (`POST /api/organisations/<id>/members`) ---
   const addMemberForm = document.getElementById("add-member-form");
   const memberEmailInput = document.getElementById("new-member-email");
   const memberError = document.getElementById("member-error");
 
-  addMemberForm.addEventListener("submit", async e => {
-    e.preventDefault();
-    memberError.textContent = "";
-    const email = memberEmailInput.value.trim();
+  if (addMemberForm && memberEmailInput) {
+    addMemberForm.addEventListener("submit", async e => {
+      e.preventDefault();
+      if (memberError) memberError.textContent = "";
+      const email = memberEmailInput.value.trim();
 
-    if (!/^\S+@\S+\.\S+$/.test(email)) {
-      memberError.textContent = "Please enter a valid email address.";
-      return;
-    }
+      if (!/^\S+@\S+\.\S+$/.test(email)) {
+        if (memberError) memberError.textContent = "Please enter a valid email address.";
+        return;
+      }
 
-    try {
-      // Calls POST /api/organisations/1/members with email payload
-      await ApiClient.request("POST", "/organisations/1/members", { email: email });
-      toast(`Successfully added ${email} to organisation ✔`);
-      memberEmailInput.value = "";
-      loadOrgData(); // Refresh members list
-    } catch (err) {
-      memberError.textContent = err.message || "Failed to add member. Ensure user is registered.";
-    }
-  });
+      try {
+        const orgId = ApiClient.getOrgId();
+        await ApiClient.endpoints.addMember(email, orgId);
+        toast(`Successfully added ${email} to organisation ✔`);
+        memberEmailInput.value = "";
+        loadOrgData();
+      } catch (err) {
+        if (memberError) memberError.textContent = err.message || "Failed to add member. Ensure user is registered.";
+      }
+    });
+  }
 
   // Role permissions check
-  if (session && session.role !== "Brand Manager" && session.role !== "Owner") {
-    document.getElementById("role-notice").hidden = false;
+  if (session && !["Owner", "Admin", "Brand Manager"].includes(session.role)) {
+    const roleNotice = document.getElementById("role-notice");
+    if (roleNotice) roleNotice.hidden = false;
     fields.forEach(f => f.disabled = true); 
     submit.disabled = true;
     if (addMemberForm) addMemberForm.style.display = "none";
   }
 
-  const read = () => Object.fromEntries(fields.map(f => [f.name, f.type === "checkbox" ? f.checked : f.value.trim()]));
-
   form.addEventListener("submit", async e => {
     e.preventDefault();
-    const formData = read();
+    
+    // Map input fields explicitly to match backend/routes/organisations.py keys:
+    // backend looks for: org_name, industry, website, contact
+    const payload = {
+      org_name: document.getElementById("org_name")?.value.trim() || "",
+      industry: document.getElementById("industry")?.value.trim() || "",
+      website: document.getElementById("website")?.value.trim() || "",
+      contact: document.getElementById("contact")?.value.trim() || ""
+    };
     
     try {
-      // Optional PUT hook for saving org settings if supported by backend
-      status.textContent = "Saving...";
-      await ApiClient.request("PUT", "/organisations/1", formData).catch(() => {});
+      status.textContent = "Saving to server...";
+      const orgId = ApiClient.getOrgId();
+      await ApiClient.endpoints.updateOrganisation(payload, orgId);
       status.textContent = "Saved to server ✔ · " + timeLabel();
-      toast("Organization settings saved ✔");
+      toast("Organization settings saved successfully ✔");
+      // keep the sidebar org name in sync
+      if (payload.org_name && session) {
+        ApiClient.saveSession({ ...session, org: payload.org_name });
+      }
     } catch (err) {
-      status.textContent = "Saved locally";
-      toast("Saved settings successfully ✔");
+      status.textContent = "Save failed";
+      toast(err.status === 403 ? "Only Owners/Admins can edit organisation settings." : "Could not save: " + err.message, "error");
     }
   });
 

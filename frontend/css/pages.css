@@ -1653,3 +1653,7 @@ body.app-shell-layout .app-content-area .container {
   transform: scale(1.1);
 }
 
+
+
+.slide-over-backdrop[hidden] { display: none !important; }
+.slide-over-backdrop:not(.open) { pointer-events: none; }

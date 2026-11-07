@@ -15,3 +15,21 @@ instance/
 # Logs and temporary files
 *.log
 node_modules/
+
+digest.txt
+digest_full.txt
+digest_half.txt
+
+
+# backend/__pycache__/
+# backend/tests/
+# frontend/__pycache__/
+# frontend/about.html
+# frontend/approvals.html
+# frontend/auth.html
+# frontend/guidelines.html
+# frontend/history.html
+# frontend/index.html
+# frontend/landing.html
+# frontend/settings.html
+# frontend/css/
