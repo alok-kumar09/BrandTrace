@@ -10,6 +10,7 @@ Desktop.ini
 *.swo
 digest.txt
 .venv/
+instance/
 
 # Logs and temporary files
 *.log

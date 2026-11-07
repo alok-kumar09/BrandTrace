@@ -10,8 +10,10 @@ from models import (
     ReviewHistory
 )
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from services.access_control import organisation_member_required
-
+from services.access_control import (
+    organisation_member_required,
+    organisation_admin_required
+)
 
 organisations_bp = Blueprint("organisations", __name__)
 
@@ -149,3 +151,65 @@ def get_organisation_dashboard(organisation_id):
         }
     }), 200
 
+# Add an existing user to an organisation
+@organisations_bp.route(
+    "/api/organisations/<int:organisation_id>/members",
+    methods=["POST"]
+)
+@organisation_admin_required
+def add_organisation_member(organisation_id):
+
+    data = request.get_json(silent=True)
+
+    if not isinstance(data, dict):
+        return jsonify({"error": "Valid JSON is required"}), 400
+
+    email = data.get("email")
+
+    if not isinstance(email, str) or not email.strip():
+        return jsonify({"error": "Valid user email is required"}), 400
+
+    email = email.strip().lower()
+
+    user = User.query.filter(
+        db.func.lower(User.email) == email
+    ).first()
+
+    if user is None:
+        return jsonify({"error": "User does not exist"}), 404
+
+    existing_member = OrganisationMember.query.filter_by(
+        user_id=user.id,
+        organisation_id=organisation_id
+    ).first()
+
+    if existing_member is not None:
+        return jsonify({
+            "error": "User is already a member of this organisation"
+        }), 409
+
+    try:
+        membership = OrganisationMember(
+            user_id=user.id,
+            organisation_id=organisation_id,
+            role="Member"
+        )
+
+        db.session.add(membership)
+        db.session.commit()
+
+        return jsonify({
+            "message": "User added successfully",
+            "member": {
+                "user_id": user.id,
+                "name": user.name,
+                "email": user.email,
+                "role": membership.role
+            }
+        }), 201
+
+    except Exception:
+        db.session.rollback()
+        return jsonify({
+            "error": "Could not add organisation member"
+        }), 500
