@@ -80,22 +80,64 @@ def create_organisation():
 @organisation_member_required
 def get_organisation(organisation_id):
 
-    organisation = db.session.get(
-        Organisation,
-        organisation_id
-    )
+    organisation = db.session.get(Organisation, organisation_id)
 
     if organisation is None:
         return jsonify({"error": "Organisation not found"}), 404
 
+    memberships = OrganisationMember.query.filter_by(
+        organisation_id=organisation_id
+    ).all()
+
+    members = []
+    for membership in memberships:
+        user = db.session.get(User, membership.user_id)
+        if user is not None:
+            members.append({
+                "user_id": user.id,
+                "name": user.name,
+                "email": user.email,
+                "role": membership.role,
+                "created_at": (
+                    membership.created_at.isoformat()
+                    if membership.created_at else None
+                )
+            })
+
     return jsonify({
         "id": organisation.id,
         "name": organisation.name,
+        "industry": organisation.industry,
+        "website": organisation.website,
+        "governance_contact": organisation.governance_contact,
+        "members": members,
         "created_at": (
             organisation.created_at.isoformat()
             if organisation.created_at else None
         )
     }), 200
+
+
+@organisations_bp.route("/api/organisations/<int:organisation_id>", methods=["PUT"])
+@organisation_admin_required
+def update_organisation(organisation_id):
+    data = request.get_json(silent=True)
+    if not isinstance(data, dict):
+        return jsonify({"error": "Valid JSON is required"}), 400
+    organisation = Organisation.query.get_or_404(organisation_id)
+    if "org_name" in data:
+        name = data["org_name"]
+        if not isinstance(name, str) or not name.strip():
+            return jsonify({"error": "Organisation name is required"}), 400
+        organisation.name = name.strip()
+    for key, field in [("industry", "industry"), ("website", "website"), ("contact", "governance_contact")]:
+        if key in data:
+            value = data[key]
+            if value is not None and not isinstance(value, str):
+                return jsonify({"error": key + " must be text"}), 400
+            setattr(organisation, field, value.strip() if isinstance(value, str) else None)
+    db.session.commit()
+    return jsonify({"message": "Organisation updated successfully", "organisation": {"id": organisation.id, "name": organisation.name, "industry": organisation.industry, "website": organisation.website, "governance_contact": organisation.governance_contact}}), 200
 
 
 # Retrieve organisation dashboard information

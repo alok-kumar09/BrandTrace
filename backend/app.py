@@ -11,6 +11,7 @@ from routes.approvals import approvals_bp
 from flask_jwt_extended import JWTManager
 import os
 from routes.auth import auth_bp
+from flask_migrate import Migrate
 
 app = Flask(__name__)
 
@@ -28,6 +29,7 @@ CORS(app)
 
 # Initialise database
 db.init_app(app)
+migrate = Migrate(app, db)
 app.register_blueprint(review_bp)
 app.register_blueprint(guidelines_bp)
 app.register_blueprint(organisations_bp)

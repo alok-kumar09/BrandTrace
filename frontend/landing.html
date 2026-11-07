@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>BrandTrace – Enterprise AI Brand Governance & Compliance</title>
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/dashboard.css">
+  <link rel="stylesheet" href="css/pages.css">
+  <script>
+    document.documentElement.dataset.theme = localStorage.getItem("brandtrace.theme") || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+  </script>
+</head>
+<body data-page="landing">
+
+  <!-- 1. Announcement Bar -->
+  <div class="announcement-bar">
+    <span>🚀 BrandTrace v2.0 is live! Explore our new automated fact-checking engine and review workflows.</span>
+    <a href="index.html">Try Workbench →</a>
+  </div>
+
+  <!-- 2. Navigation / Header -->
+  <header class="site-header landing-header">
+    <div class="header-inner landing-header-inner">
+      <a class="brand-logo-mark" href="landing.html">
+        <div class="logo-icon">🛡️</div>
+        <span>Brand<strong>Trace</strong></span>
+      </a>
+      <div class="landing-nav-actions">
+        <a class="btn btn-secondary btn-sm landing-signin-btn" href="auth.html">Sign In</a>
+        <a class="btn btn-primary btn-sm" href="index.html">Launch Workbench</a>
+      </div>
+    </div>
+  </header>
+  
+  <!-- 3. Hero Section & Sliding Hero Showcase -->
+  <!-- 3. Hero Section & Integrated Showcase -->
+  <section class="landing-hero">
+    
+    <!-- Dynamic 2-Column Hero Grid -->
+    <div class="hero-grid-container">
+      
+      <!-- Left Column: Hero Content Slider -->
+      <div class="hero-left-col">
+        <span class="eyebrow">🛡️ Enterprise AI Brand Governance & Compliance</span>
+
+        <!-- Hero Content Slider with Custom Border -->
+        <div class="hero-slider-card">
+          <div class="hero-slider-container" id="hero-slider">
+            <div class="hero-slide active" data-index="0">
+              <h1>Ship on-brand marketing copy, <em>without legal risk</em>.</h1>
+              <p class="hero-description">
+                BrandTrace audits copy against tone rules, restricted terms, and approved facts in real time — keeping human reviewers in control.
+              </p>
+            </div>
+            <div class="hero-slide" data-index="1" hidden>
+              <h1>Automated Compliance, <em>Zero Policy Drift</em>.</h1>
+              <p class="hero-description">
+                Prevent costly overstatements and brand misalignments instantly before publication with custom severity tiers.
+              </p>
+            </div>
+            <div class="hero-slide" data-index="2" hidden>
+              <h1>Human Reviewer <em>Ultimate Control</em>.</h1>
+              <p class="hero-description">
+                Approve or reject context-aware suggestions with a single click while maintaining complete audit transparency.
+              </p>
+            </div>
+          </div>
+
+          <!-- Hero Slider Navigation Dots -->
+          <div class="hero-slider-dots">
+            <button class="hero-dot active" data-slide="0" aria-label="Hero slide 1"></button>
+            <button class="hero-dot" data-slide="1" aria-label="Hero slide 2"></button>
+            <button class="hero-dot" data-slide="2" aria-label="Hero slide 3"></button>
+          </div>
+        </div>
+
+        <div class="hero-cta">
+          <a class="btn btn-primary btn-lg" href="auth.html">🚀 Launch Dashboard</a>
+          <a class="btn btn-secondary btn-lg" href="guidelines.html">⚙️ Configure Guidelines</a>
+        </div>
+      </div>
+
+      <!-- Right Column: Micro Linting Test Widget -->
+      <div class="hero-right-col">
+        <div class="card landing-micro-widget">
+          <h3>⚡ Try Live Content Linting</h3>
+          <p class="micro-widget-sub">Test sample copy against automated brand guideline rules:</p>
+          <div class="micro-widget-row">
+            <input id="hero-test-input" class="field" type="text" value="Our new laptop is the cheapest and guaranteed best!">
+            <button id="hero-test-btn" class="btn btn-primary" type="button">Run Audit</button>
+          </div>
+          <div id="hero-test-result" class="micro-widget-result" aria-live="polite"></div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Glassmorphic Mockup Illustration -->
+    <div class="hero-banner-visual">
+      <div class="banner-header-bar">
+        <div class="banner-dot red"></div>
+        <div class="banner-dot yellow"></div>
+        <div class="banner-dot green"></div>
+        <span class="banner-title">BrandTrace Live Audit Workbench v2.0</span>
+      </div>
+      <div class="banner-body">
+        <div class="banner-mock-card">
+          <div class="banner-tag danger">High Severity Risk Detected</div>
+          <p class="banner-code">"Introducing the NovaBook Pro, the <s>cheapest</s> <em>most affordable</em> laptop..."</p>
+          <small class="banner-hint">Rule matched: Price superlative restriction</small>
+        </div>
+        <div class="glass-svg-card">
+          <div class="svg-status-card">
+            <div class="status-icon-circle">✓</div>
+            <div class="status-meta">
+              <span class="status-title">Governance Active</span>
+              <span class="status-sub">99.4% Accuracy Rate</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Integrated Metrics Strip -->
+    <div class="metrics-ticker">
+      <div class="metric-item">
+        <div class="val">99.4%</div>
+        <div class="lbl">Governance Accuracy</div>
+      </div>
+      <div class="metric-item">
+        <div class="val">&lt; 14ms</div>
+        <div class="lbl">Audit Latency</div>
+      </div>
+      <div class="metric-item">
+        <div class="val">100%</div>
+        <div class="lbl">Human Sign-off Control</div>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- 4. Trust Indicators -->
+  <section class="trust-section">
+    <p class="trust-label">Trusted by Brand &amp; Legal Compliance Teams Worldwide</p>
+    <div class="trust-logos">
+      <span>🏢 NovaTech Devices</span>
+      <span>⚡ Apex Retail</span>
+      <span>🌐 Global Media Group</span>
+      <span>🔒 SecureCorp Financial</span>
+    </div>
+  </section>
+
+  <!-- 5. Interactive Platform Showcase Carousel -->
+  <section class="section showcase-section">
+    <h2>Interactive Platform Showcase</h2>
+    <p class="sub">Explore how BrandTrace automates compliance while keeping your team fully in control.</p>
+    
+    <div class="carousel-wrapper">
+      <div class="carousel-track-container">
+        <div class="carousel-track" id="feature-carousel">
+          
+          <div class="carousel-slide">
+            <div class="carousel-slide-content">
+              <h3>1. Real-Time Content Linting</h3>
+              <p>Paste marketing copy into the Workbench. BrandTrace instantly scans text against custom restricted words and price superlatives with severity color coding.</p>
+            </div>
+            <div class="carousel-slide-visual">📊 Preview: Workbench Audit Engine</div>
+          </div>
+
+          <div class="carousel-slide">
+            <div class="carousel-slide-content">
+              <h3>2. Automated Fact Verification</h3>
+              <p>Compare technical specs and product claims against approved factual databases to prevent costly overstatement errors before shipping.</p>
+            </div>
+            <div class="carousel-slide-visual">📐 Preview: Fact Mismatch Detector</div>
+          </div>
+
+          <div class="carousel-slide">
+            <div class="carousel-slide-content">
+              <h3>3. Human-in-the-Loop Sign-off</h3>
+              <p>Nothing changes automatically. Reviewers retain absolute control, accepting purpose-preserving edits or rejecting warnings with a single click.</p>
+            </div>
+            <div class="carousel-slide-visual">👥 Preview: Review Approval Workflow</div>
+          </div>
+
+        </div>
+      </div>
+      <div class="carousel-nav">
+        <button class="carousel-dot active" data-slide="0" aria-label="Slide 1"></button>
+        <button class="carousel-dot" data-slide="1" aria-label="Slide 2"></button>
+        <button class="carousel-dot" data-slide="2" aria-label="Slide 3"></button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6. FAQ Section -->
+  <section class="section faq-section">
+    <h2 class="faq-title">Frequently Asked Questions</h2>
+    <details class="acc" open>
+      <summary>How does BrandTrace protect sensitive marketing drafts?</summary>
+      <div class="acc-body">
+        All drafts and guideline configurations are encrypted in transit and at rest. Role-based access control ensures only authorized organization members can view or edit brand rules.
+      </div>
+    </details>
+    <details class="acc">
+      <summary>Can we connect BrandTrace to our custom backend?</summary>
+      <div class="acc-body">
+        Yes! BrandTrace is fully integrated with a Flask backend supporting JWT authentication, SQLite storage, and modular REST endpoints for analysis, guidelines, and history.
+      </div>
+    </details>
+    <details class="acc">
+      <summary>What is the difference between High, Medium, and Low severity?</summary>
+      <div class="acc-body">
+        High severity flags legal or factual risks that block unreviewed publishing. Medium covers policy-adjacent wording, and Low addresses tone and style adjustments.
+      </div>
+    </details>
+  </section>
+
+  <!-- 7. Final CTA -->
+  <section class="cta-band">
+    <h2>Ready to audit your first campaign draft?</h2>
+    <p>Sign in with your work credentials or jump straight into the interactive content workbench.</p>
+    <div class="hero-cta">
+      <a class="btn btn-primary btn-lg" href="auth.html">Sign in to Workspace</a>
+      <a class="btn btn-secondary btn-lg" href="index.html">Open Workbench</a>
+    </div>
+  </section>
+
+  <!-- 8. Footer (Unified Enterprise Mega-Footer) -->
+  <footer class="enterprise-footer">
+    <div class="footer-grid">
+      <div class="footer-col">
+        <a class="brand-logo-mark footer-logo" href="landing.html">
+          <div class="logo-icon">🛡️</div>
+          <span>Brand<strong>Trace</strong></span>
+        </a>
+        <p class="footer-desc">
+          The definitive enterprise AI brand governance platform. Keep your marketing copy fully compliant, automated, and under strict human review control across every campaign.
+        </p>
+        <div class="footer-badges">
+          <span class="cert-badge">SOC-2 Type II Certified</span>
+          <span class="cert-badge">NIST RMF Aligned</span>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h4>Product Suite</h4>
+        <ul>
+          <li><a href="index.html">Content Workbench</a></li>
+          <li><a href="guidelines.html">Rule Configuration</a></li>
+          <li><a href="history.html">Audit History Log</a></li>
+          <li><a href="approvals.html">Sign-off Workflow</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Governance &amp; Trust</h4>
+        <ul>
+          <li><a href="about.html">NIST AI Principles</a></li>
+          <li><a href="about.html">Human-in-the-Loop</a></li>
+          <li><a href="settings.html">Role-Based Access</a></li>
+          <li><a href="settings.html">Security &amp; Encryption</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Workspace</h4>
+        <ul>
+          <li><a href="auth.html">Sign In to Enterprise</a></li>
+          <li><a href="auth.html">Register Workspace</a></li>
+          <li><a href="settings.html">Organization Settings</a></li>
+          <li><a href="landing.html">Platform Overview</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 BrandTrace Technologies Inc. · All rights reserved. Enterprise Compliance Suite.</span>
+      <span class="status-indicator">🟢 All AI Governance Nodes Operational</span>
+    </div>
+  </footer>
+  
+  <script src="js/landing.js"></script>
+</body>
+</html>
