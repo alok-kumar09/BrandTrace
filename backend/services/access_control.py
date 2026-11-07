@@ -4,7 +4,8 @@ from functools import wraps
 from flask import jsonify, request
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
-from models import OrganisationMember
+from database import db
+from models import Organisation, OrganisationMember
 
 
 def get_organisation_id(kwargs):
@@ -41,6 +42,13 @@ def organisation_member_required(function):
                 "error": "Valid organisation_id is required"
             }), 400
 
+        organisation = db.session.get(Organisation, organisation_id)
+
+        if organisation is None:
+            return jsonify({
+                "error": "Organisation not found"
+            }), 404
+
         user_id = int(get_jwt_identity())
 
         membership = OrganisationMember.query.filter_by(
@@ -70,6 +78,13 @@ def organisation_admin_required(function):
             return jsonify({
                 "error": "Valid organisation_id is required"
             }), 400
+
+        organisation = db.session.get(Organisation, organisation_id)
+
+        if organisation is None:
+            return jsonify({
+                "error": "Organisation not found"
+            }), 404
 
         user_id = int(get_jwt_identity())
 
