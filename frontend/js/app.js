@@ -87,7 +87,6 @@
   // ================= WORKBENCH =================
 
   function initWorkbench() {
-
     const editor = $("editor");
     const results = $("results");
     const button = $("analyse-btn");
@@ -124,7 +123,6 @@
     // ---- Persistence ----
 
     const persist = () => {
-
       store.set(K.wb, {
         content: editor.value,
         issues,
@@ -141,7 +139,6 @@
     // ---- Character Counter ----
 
     function updateCounter() {
-
       if (!counter) return;
 
       counter.textContent =
@@ -156,9 +153,7 @@
     // ---- Statistics Update ----
 
     function updateStats() {
-
       const total = $("st-total");
-
       if (!total) return;
 
       const guidelines = Storage.load();
@@ -185,9 +180,7 @@
     // ---- Guidelines Snapshot ----
 
     function updateSnapshot() {
-
       const element = $("rules-snapshot");
-
       if (!element) return;
 
       const guidelines = Storage.load();
@@ -232,7 +225,6 @@
     // ---- Results Summary ----
 
     function summary() {
-
       const openIssues = issues.filter(
         issue => !issue.status
       );
@@ -244,7 +236,6 @@
 
       return `
         <div class="summary-bar">
-
           <span class="badge neutral">
             ${openIssues.length} open
           </span>
@@ -274,18 +265,15 @@
                 </span>`
               : ""
           }
-
         </div>`;
     }
 
     // ---- Render Results ----
 
     function render(animate = false) {
-
       updateStats();
 
       if (!issues.length) {
-
         results.innerHTML = source
           ? `
             <div class="empty-state">
@@ -301,7 +289,6 @@
       results.innerHTML =
         summary() +
         issues.map((issue, index) => `
-
           <article
             class="issue-card sev-${esc(issue.severity)}
               ${issue.status ? "resolved" : ""}
@@ -310,7 +297,6 @@
             data-id="${esc(issue.id)}">
 
             <div class="issue-head">
-
               <span class="category">
                 ${esc(issue.category)}
               </span>
@@ -328,7 +314,6 @@
                       ${esc(issue.severity)}
                     </span>`
               }
-
             </div>
 
             <div class="label">Original text</div>
@@ -351,7 +336,6 @@
                 ? ""
                 : `
                   <div class="issue-actions">
-
                     <button
                       class="btn btn-success btn-sm"
                       data-act="accept"
@@ -365,50 +349,40 @@
                       type="button">
                       ✖ Reject
                     </button>
-
                   </div>`
             }
-
           </article>
-
         `).join("");
     }
 
     // ---- Validation ----
 
     function validate() {
-
       const value = editor.value.trim();
 
       if (!value) {
-
         setError(
           editor,
           "Add some content to analyse."
         );
-
         return false;
       }
 
       if (value.length > MAX) {
-
         setError(
           editor,
           `Content is too long. The limit is ${MAX} characters.`
         );
-
         return false;
       }
 
       clearError(editor);
-
       return true;
     }
 
     // ================= ANALYSIS =================
 
     async function analyse() {
-
       if (button.disabled) return;
 
       if (!validate()) {
@@ -416,20 +390,14 @@
         return;
       }
 
-      // Loading state
       button.disabled = true;
-
-      button.setAttribute(
-        "aria-busy",
-        "true"
-      );
+      button.setAttribute("aria-busy", "true");
 
       button.innerHTML = `
         <span class="spinner" aria-hidden="true"></span>
         Analysing…
       `;
 
-      // Display skeletons immediately
       results.innerHTML = skeletons();
 
       document.querySelectorAll(
@@ -439,20 +407,17 @@
       });
 
       try {
-
         const data = await ApiClient.analyzeContent(
           editor.value.trim(),
           Storage.load()
         );
 
-        // Validate API response
         if (!data || !Array.isArray(data.issues)) {
           throw new Error(
             "The analysis service returned an invalid response."
           );
         }
 
-        // Store issues
         issues = data.issues.map((issue, index) => ({
           ...issue,
           id: issue.id ?? `issue-${Date.now()}-${index}`,
@@ -461,12 +426,9 @@
 
         source = data.source || "mock";
 
-        // Render and persist
         render(true);
-
         persist();
 
-        // Success notification
         notify(
           issues.length
             ? `Analysis complete. ${issues.length} issue${issues.length === 1 ? "" : "s"} found.`
@@ -475,8 +437,6 @@
         );
 
       } catch (error) {
-
-        // Error handling
         let message =
           error?.message ||
           "An unexpected error occurred while analysing the content.";
@@ -499,12 +459,9 @@
             <p>${esc(message)}</p>
           </div>`;
 
-        // Error notification
         notify(message, "error");
 
       } finally {
-
-        // Always restore UI
         document.querySelectorAll(
           ".stat .value"
         ).forEach(value => {
@@ -512,9 +469,7 @@
         });
 
         button.disabled = false;
-
         button.removeAttribute("aria-busy");
-
         button.innerHTML = "🔍 Analyse Content";
       }
     }
@@ -524,18 +479,15 @@
     button.addEventListener("click", analyse);
 
     editor.addEventListener("keydown", event => {
-
       if (
         (event.ctrlKey || event.metaKey) &&
         event.key === "Enter"
       ) {
         analyse();
       }
-
     });
 
     editor.addEventListener("input", () => {
-
       updateCounter();
 
       if (editor.classList.contains("invalid")) {
@@ -548,7 +500,6 @@
     // ---- Accept / Reject Suggestions ----
 
     results.addEventListener("click", event => {
-
       const actionButton =
         event.target.closest("[data-act]");
 
@@ -564,13 +515,11 @@
       if (!issue) return;
 
       if (actionButton.dataset.act === "accept") {
-
         const escapedText = String(
           issue.original_text || ""
         ).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
         if (escapedText) {
-
           const expression = new RegExp(
             escapedText,
             "i"
@@ -592,7 +541,6 @@
         );
 
       } else if (actionButton.dataset.act === "reject") {
-
         issue.status = "rejected";
 
         notify(
@@ -604,13 +552,11 @@
       updateCounter();
       render();
       persist();
-
     });
 
     // ---- Clear Draft ----
 
     $("clear-btn")?.addEventListener("click", () => {
-
       editor.value = "";
       issues = [];
       source = null;
@@ -625,20 +571,17 @@
       if (status) {
         status.textContent = "";
       }
-
     });
 
     // ---- Load Sample ----
 
     $("sample-btn")?.addEventListener("click", () => {
-
       editor.value = SampleData.draft;
 
       clearError(editor);
 
       updateCounter();
       persist();
-
     });
 
     // ---- Initial State ----
@@ -650,61 +593,25 @@
     if (saved && status) {
       status.textContent = "Draft restored";
     }
-
   }
 
   // ================= GUIDELINES =================
 
-  function initGuidelines() {
-
-    const saved = Storage.load();
-
+  async function initGuidelines() {
     const box = $("chip-box");
     const input = $("chip-input");
     const severitySelect = $("rule-severity");
     const status = $("save-status");
     const form = $("guidelines-form");
-
     const sandboxInput = $("sandbox-input");
     const sandboxFeedback = $("sandbox-feedback");
-
     const toneInput = $("tone");
     const specsInput = $("specs");
 
-    if (
-      !box ||
-      !input ||
-      !severitySelect ||
-      !form ||
-      !toneInput ||
-      !specsInput
-    ) {
-      return;
-    }
+    if (!box || !input || !severitySelect || !form || !toneInput || !specsInput) return;
 
-    // ---- Load Existing Rules ----
-
-    let restrictedRules = Array.isArray(saved.restricted_terms)
-      ? saved.restricted_terms.map(rule =>
-          typeof rule === "string"
-            ? {
-                term: rule,
-                severity: "medium"
-              }
-            : {
-                term: rule.term,
-                severity: rule.severity || "medium"
-              }
-        )
-      : (saved.restricted_words || []).map(word => ({
-          term: word,
-          severity: "medium"
-        }));
-
-    toneInput.value = saved.tone || "";
-
-    specsInput.value =
-      (saved.approved_specs || []).join("\n");
+    const localSaved = Storage.load();
+    let restrictedRules = [];
 
     const specLines = () =>
       specsInput.value
@@ -712,20 +619,92 @@
         .map(line => line.trim())
         .filter(Boolean);
 
+    const factsToLines = facts => {
+      if (Array.isArray(facts)) {
+        return facts.map(item =>
+          typeof item === "string"
+            ? item
+            : `${item.subject || "General"}: ${item.value || ""}`.trim()
+        );
+      }
+
+      if (facts && typeof facts === "object") {
+        return Object.entries(facts).map(
+          ([subject, value]) => `${subject}: ${value}`
+        );
+      }
+
+      return [];
+    };
+
+    const loadRules = rules =>
+      (Array.isArray(rules) ? rules : [])
+        .map(rule =>
+          typeof rule === "string"
+            ? { term: rule, severity: "medium" }
+            : {
+                term: rule.term || "",
+                severity: rule.severity || "medium"
+              }
+        )
+        .filter(rule => rule.term);
+
+    // Load the organisation's saved guidelines from the backend.
+    try {
+      const data = await ApiClient.getGuidelines();
+
+      restrictedRules = loadRules(data.restricted_words);
+      toneInput.value = data.tone || "";
+      specsInput.value = factsToLines(
+        data.approved_facts
+      ).join("\n");
+
+      Storage.save({
+        tone: toneInput.value,
+        restricted_terms: restrictedRules,
+        restricted_words: restrictedRules.map(
+          rule => rule.term
+        ),
+        approved_specs: specLines()
+      });
+
+      if (status) {
+        status.textContent = "Guidelines loaded from server";
+      }
+
+    } catch (error) {
+      restrictedRules = loadRules(
+        localSaved.restricted_terms ||
+        localSaved.restricted_words
+      );
+
+      toneInput.value = localSaved.tone || "";
+      specsInput.value = (
+        localSaved.approved_specs || []
+      ).join("\n");
+
+      if (status) {
+        status.textContent = error.status === 404
+          ? "No saved server guidelines yet. Add or edit rules, then save."
+          : "Could not load server guidelines. Showing this browser's saved copy.";
+      }
+
+      console.warn(
+        "Could not load guidelines from backend:",
+        error
+      );
+    }
+
     // ---- Sandbox Validation ----
 
     function updateSandbox() {
-
       if (!sandboxInput || !sandboxFeedback) return;
 
-      const sample =
-        sandboxInput.value.toLowerCase();
+      const sample = sandboxInput.value.toLowerCase();
 
       if (!sample) {
-
         sandboxFeedback.textContent = "";
         sandboxFeedback.className = "";
-
         return;
       }
 
@@ -734,32 +713,24 @@
       );
 
       if (matched) {
-
         sandboxFeedback.className = "sandbox-fail";
-
         sandboxFeedback.textContent =
           `❌ Blocked: Contains restricted term "${matched.term}" (${matched.severity.toUpperCase()} severity).`;
-
       } else {
-
         sandboxFeedback.className = "sandbox-pass";
-
         sandboxFeedback.textContent =
           "✔ Passed: No restricted terms detected in test text.";
-
       }
     }
 
     // ---- Render Rule Chips ----
 
     function renderChips() {
-
       box.querySelectorAll(".chip").forEach(
         chip => chip.remove()
       );
 
       restrictedRules.forEach((rule, index) => {
-
         const chip = document.createElement("span");
 
         chip.className = `chip sev-${rule.severity}`;
@@ -777,7 +748,6 @@
         `;
 
         box.appendChild(chip);
-
       });
 
       const count = $("rule-count");
@@ -793,7 +763,6 @@
     // ---- Add Restricted Rule ----
 
     function addRule(term, severity) {
-
       const value = term.trim().replace(/,$/, "");
 
       input.value = "";
@@ -819,27 +788,22 @@
     // ---- Input Events ----
 
     input.addEventListener("keydown", event => {
-
       if (
         event.key === "Enter" ||
         event.key === ","
       ) {
-
         event.preventDefault();
 
         addRule(
           input.value,
           severitySelect.value
         );
-
       }
-
     });
 
     // ---- Remove Rules ----
 
     box.addEventListener("click", event => {
-
       const removeButton =
         event.target.closest("button[data-i]");
 
@@ -851,7 +815,6 @@
       );
 
       renderChips();
-
     });
 
     // ---- Sandbox Events ----
@@ -864,20 +827,17 @@
     // ---- Approved Facts Counter ----
 
     specsInput.addEventListener("input", () => {
-
       const count = $("rule-count");
 
       if (count) {
         count.textContent =
           `${restrictedRules.length} words · ${specLines().length} facts`;
       }
-
     });
 
     // ---- Save Guidelines ----
 
-    form.addEventListener("submit", event => {
-
+    form.addEventListener("submit", async event => {
       event.preventDefault();
 
       if (input.value.trim()) {
@@ -887,61 +847,87 @@
         );
       }
 
-      const payload = {
+      const approvedFacts = {};
 
-        ruleset_id: "org_default",
+      specLines().forEach(line => {
+        const separator = line.indexOf(":");
 
-        tone_prompt: toneInput.value.trim(),
+        const subject = separator >= 0
+          ? line.slice(0, separator).trim()
+          : "General";
 
-        restricted_terms: restrictedRules,
+        const value = separator >= 0
+          ? line.slice(separator + 1).trim()
+          : line;
 
-        approved_facts: specLines().map(line => {
-
-          const parts = line.split(":");
-
-          return {
-            subject: parts[0]?.trim() || "General",
-            value: parts.slice(1).join(":").trim() || line
-          };
-
-        })
-
-      };
-
-      Storage.save({
-
-        tone: payload.tone_prompt,
-
-        restricted_terms: payload.restricted_terms,
-
-        restricted_words:
-          payload.restricted_terms.map(
-            rule => rule.term
-          ),
-
-        approved_specs: specLines()
-
+        if (subject && value) {
+          approvedFacts[subject] = value;
+        }
       });
 
-      if (status) {
-        status.textContent = "Saved to schema ✔";
+      const payload = {
+        tone: toneInput.value.trim(),
+        restricted_words: restrictedRules.map(
+          rule => rule.term
+        ),
+        approved_terms: [],
+        approved_facts: approvedFacts
+      };
+
+      const saveButton =
+        form.querySelector('[type="submit"]');
+
+      if (saveButton) {
+        saveButton.disabled = true;
       }
 
-      notify(
-        "Guidelines saved successfully ✔",
-        "success"
-      );
+      if (status) {
+        status.textContent = "Saving guidelines to server…";
+      }
 
+      try {
+        await ApiClient.saveGuidelines(payload);
+
+        Storage.save({
+          tone: payload.tone,
+          restricted_terms: restrictedRules,
+          restricted_words: payload.restricted_words,
+          approved_specs: specLines()
+        });
+
+        if (status) {
+          status.textContent = "Saved to server ✔";
+        }
+
+        notify(
+          "Guidelines saved successfully.",
+          "success"
+        );
+
+      } catch (error) {
+        if (status) {
+          status.textContent =
+            `Save failed: ${error.message || "Backend error"}`;
+        }
+
+        notify(
+          `Guidelines were not saved: ${error.message || "Backend error"}`,
+          "error"
+        );
+
+      } finally {
+        if (saveButton) {
+          saveButton.disabled = false;
+        }
+      }
     });
 
     renderChips();
-
   }
 
   // ================= INITIALIZATION =================
 
   document.addEventListener("DOMContentLoaded", () => {
-
     if (window.ApiClient?.checkHealth) {
       ApiClient.checkHealth();
     }
@@ -955,7 +941,6 @@
     if (page === "guidelines") {
       initGuidelines();
     }
-
   });
 
 })();

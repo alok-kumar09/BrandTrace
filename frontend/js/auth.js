@@ -40,17 +40,8 @@
       localStorage.setItem(KEY, JSON.stringify(sessionData));
       location.href = "index.html"; // Redirect to dashboard
     } catch (err) {
-      console.warn("Backend auth failed, using simulated session fallback:", err.message);
-      // Fallback local demo session if backend auth route isn't running yet
-      const fallbackSession = {
-        token: "mock-jwt-token-for-demo-mode",
-        name: name,
-        email: email,
-        role: role,
-        org: "NovaTech Devices"
-      };
-      localStorage.setItem(KEY, JSON.stringify(fallbackSession));
-      location.href = "index.html";
+      console.error("Backend authentication failed:", err);
+      $("auth-error").textContent = err.message || "Unable to sign in. Please check your details and try again.";
     }
   }
 

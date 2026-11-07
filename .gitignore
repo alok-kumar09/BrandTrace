@@ -1,16 +1,18 @@
-<<<<<<< HEAD
 
 # Environment variables and secrets
 .env
+.env.*
 
-# Python virtual environment
+# Python virtual environments
 venv/
+.venv/
 
 # Python cache
 __pycache__/
+**/__pycache__/
 *.pyc
 
-# Local database
+# Local databases
 instance/
 *.db
 *.sqlite
@@ -19,24 +21,26 @@ instance/
 # Uploaded documents
 uploads/
 
-# Local VS Code settings
-.vscode/
-**/__pycache__/
-=======
-# Operating System files
+# Operating system files
 .DS_Store
 Thumbs.db
 Desktop.ini
 
-# Editor & IDE settings
+# Editor and IDE settings
 .vscode/
 .idea/
 *.swp
 *.swo
-digest.txt
-.venv/
 
 # Logs and temporary files
 *.log
+digest.txt
+
+# Node dependencies
 node_modules/
->>>>>>> friend/brandtrace-frontend
+
+backend/*_token.txt
+backend/*_token.txt
+*.backup
+*.safety
+*_backup.py
