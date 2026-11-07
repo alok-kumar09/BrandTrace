@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 
 # Environment variables and secrets
 .env
@@ -21,3 +22,21 @@ uploads/
 # Local VS Code settings
 .vscode/
 **/__pycache__/
+=======
+# Operating System files
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Editor & IDE settings
+.vscode/
+.idea/
+*.swp
+*.swo
+digest.txt
+.venv/
+
+# Logs and temporary files
+*.log
+node_modules/
+>>>>>>> friend/brandtrace-frontend

@@ -16,3 +16,4 @@ class Config:
         "SECRET_KEY",
         "brandtrace-dev-key"
     )
+

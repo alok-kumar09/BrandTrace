@@ -1,6 +1,8 @@
-from flask import Flask, request, jsonify
+
+from flask import Flask, jsonify
 
 app = Flask(__name__)
+
 
 @app.route("/")
 def home():
@@ -9,12 +11,14 @@ def home():
     <p>Your AI-powered Brand Governance Platform.</p>
     """
 
+
 @app.route("/health")
 def health():
     return jsonify({
         "status": "running",
         "project": "BrandTrace"
     })
+
 
 if __name__ == "__main__":
     app.run(debug=True)
