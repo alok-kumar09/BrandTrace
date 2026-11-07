@@ -742,3 +742,29 @@ body.app-shell-layout .saas-enterprise-footer {
     animation: none;
   }
 }
+/* ---- Review History Table Space & Border Fixes ---- */
+.history-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: auto;
+}
+
+.history-table th,
+.history-table td {
+  padding: 14px 12px;
+  vertical-align: middle;
+}
+
+.history-table td.nowrap-cell,
+.history-table th:nth-child(4),
+.history-table th:nth-child(5),
+.history-table td:nth-child(4),
+.history-table td:nth-child(5) {
+  white-space: nowrap;
+}
+
+.history-table .badge {
+  display: inline-block;
+  white-space: nowrap;
+  vertical-align: middle;
+}

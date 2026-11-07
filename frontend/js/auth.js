@@ -19,7 +19,7 @@
     const role = document.querySelector('input[name="role"]:checked')?.value || "Brand Manager";
 
     if (!/^\S+@\S+\.\S+$/.test(email)) return $("auth-error").textContent = "Please enter a valid email address.";
-    if (pw.length < 6) return $("auth-error").textContent = "Password must be at least 6 characters.";
+    if (pw.length < 8) return $("auth-error").textContent = "Password must be at least 8 characters.";
 
     const endpoint = mode === "login" ? "/api/auth/login" : "/api/auth/register";
     const payload = mode === "login" ? { email, password: pw } : { name, email, password: pw, role };

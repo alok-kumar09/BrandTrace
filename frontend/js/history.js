@@ -14,35 +14,10 @@
         cachedReviews = getMockHistoryList();
       }
 
-      updateMetrics(cachedReviews);
-
-      tbody.innerHTML = cachedReviews.map(item => {
-        const dateStr = item.created_at ? new Date(item.created_at).toLocaleDateString() : "2026-11-06";
-        const excerpt = item.submitted_content ? esc(item.submitted_content.substring(0, 50)) + "..." : "Draft Copy";
-        const issuesCount = Array.isArray(item.issues) ? item.issues.length : 2;
-        const status = item.overall_status || "Needs Review";
-        const badgeClass = status.toLowerCase().includes("pass") || status.toLowerCase().includes("approve") ? "resolved" : "high";
-
-        return `
-          <tr>
-            <td><strong>#${esc(item.id || item.review_id || "101")}</strong></td>
-            <td style="color: var(--muted); white-space: nowrap;">${esc(dateStr)}</td>
-            <td><code>${excerpt}</code></td>
-            <td><span class="badge neutral">${issuesCount} issues</span></td>
-            <td><span class="badge ${badgeClass}">${esc(status)}</span></td>
-            <td>
-              <button class="btn btn-secondary btn-sm" onclick="openReviewDrawer('${item.id || item.review_id || 101}')">
-                View Details
-              </button>
-            </td>
-          </tr>
-        `;
-      }).join("");
-
+      renderTable(cachedReviews);
     } catch (err) {
       cachedReviews = getMockHistoryList();
-      updateMetrics(cachedReviews);
-      renderMockTable(tbody, cachedReviews);
+      renderTable(cachedReviews);
     }
   }
 
@@ -70,21 +45,74 @@
     ];
   }
 
+  function renderTable(list, filterQuery = "") {
+    const tbody = document.getElementById("history-tbody");
+    if (!tbody) return;
+
+    const filtered = list.filter(item => {
+      if (!filterQuery) return true;
+      const q = filterQuery.toLowerCase();
+      const content = (item.submitted_content || "").toLowerCase();
+      const idStr = String(item.id || item.review_id || "").toLowerCase();
+      const status = (item.overall_status || "").toLowerCase();
+      return content.includes(q) || idStr.includes(q) || status.includes(q);
+    });
+
+    updateMetrics(list);
+
+    if (filtered.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; padding: 32px; color: var(--muted);">No matching review records found.</td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = filtered.map(item => {
+      const reviewId = item.id || item.review_id || "101";
+      const dateStr = item.created_at ? new Date(item.created_at).toLocaleDateString() : "2026-11-06";
+      const excerpt = item.submitted_content ? esc(item.submitted_content.substring(0, 45)) + "..." : "Draft Copy";
+      const issuesCount = Array.isArray(item.issues) ? item.issues.length : 0;
+      const status = item.overall_status || "Needs Review";
+      const statusLower = status.toLowerCase();
+      const badgeClass = statusLower.includes("pass") || statusLower.includes("approve") ? "resolved" : "high";
+
+      return `
+        <tr data-review-id="${esc(reviewId)}">
+          <td><strong>#${esc(reviewId)}</strong></td>
+          <td style="color: var(--muted); white-space: nowrap;">${esc(dateStr)}</td>
+          <td><code style="word-break: break-word;">${excerpt}</code></td>
+          <td class="nowrap-cell"><span class="badge neutral">${issuesCount} issues</span></td>
+          <td class="nowrap-cell"><span class="badge ${badgeClass}">${esc(status)}</span></td>
+          <td style="text-align: right; white-space: nowrap;">
+            <button class="btn btn-secondary btn-sm view-details-btn" data-id="${esc(reviewId)}" type="button">
+              View Details
+            </button>
+          </td>
+        </tr>
+      `;
+    }).join("");
+  }
+
+  function updateMetrics(list) {
+    document.getElementById("hist-total").textContent = list.length;
+    document.getElementById("hist-passed").textContent = list.filter(i => (i.overall_status || "").toLowerCase().includes("pass")).length;
+    document.getElementById("hist-attention").textContent = list.filter(i => (i.overall_status || "").toLowerCase().includes("need")).length;
+    document.getElementById("hist-approved").textContent = list.filter(i => (i.overall_status || "").toLowerCase().includes("approve")).length;
+  }
+
   window.openReviewDrawer = function(id) {
     const review = cachedReviews.find(r => String(r.id || r.review_id) === String(id)) || cachedReviews[0];
     const backdrop = document.getElementById("history-slide-over");
     const content = document.getElementById("drawer-content");
     const title = document.getElementById("drawer-title");
-    if (!backdrop || !content) return;
+    if (!backdrop || !content || !review) return;
 
     title.textContent = `Audit Review Inspection #${review.id || review.review_id || 101}`;
     
     const issuesHtml = (review.issues || []).map(iss => `
-      <div class="diff-card-item">
-        <div class="label">${esc(iss.category)} (${iss.severity})</div>
+      <div class="diff-card-item" style="margin-bottom: 16px;">
+        <div class="label">${esc(iss.category || "Issue")} (${esc(iss.severity || "medium")})</div>
         <div class="diff-view">
-          <span class="diff-del">Original: "${esc(iss.original_text)}"</span>
-          <span class="diff-ins">Suggested: "${esc(iss.suggestion)}"</span>
+          <span class="diff-del">Original: "${esc(iss.original_text || "")}"</span>
+          <span class="diff-ins">Suggested: "${esc(iss.suggestion || "")}"</span>
         </div>
         <p style="font-size: 0.85rem; margin-top: 6px; color: var(--muted);">${esc(iss.explanation || "")}</p>
       </div>
@@ -93,8 +121,8 @@
     content.innerHTML = `
       <div style="margin-bottom: 16px;">
         <span class="label">Metadata</span>
-        <p style="font-size: 0.88rem;"><strong>Timestamp:</strong> ${esc(review.created_at || "N/A")} | <strong>Author ID:</strong> ${esc(review.author_id || "usr_default")}</p>
-        <p style="font-size: 0.88rem;"><strong>Approval Status:</strong> <span class="badge high">${esc(review.overall_status || "Pending")}</span></p>
+        <p style="font-size: 0.88rem;"><strong>Timestamp:</strong> ${esc(review.created_at || "N/A")} | <strong>Author:</strong> ${esc(review.author_id || "User")}</p>
+        <p style="font-size: 0.88rem; margin-top: 4px;"><strong>Status:</strong> <span class="badge high">${esc(review.overall_status || "Pending")}</span></p>
       </div>
       <div style="margin-bottom: 16px;">
         <span class="label">Full Submitted Content</span>
@@ -122,34 +150,30 @@
   document.addEventListener("DOMContentLoaded", () => {
     if (document.body.dataset.page === "history") {
       loadHistory();
+
       document.getElementById("refresh-history-btn")?.addEventListener("click", () => {
         toast("Refreshing history log...");
         loadHistory();
       });
+
+      // Robust event delegation for View Details buttons
+      document.getElementById("history-tbody")?.addEventListener("click", (e) => {
+        const btn = e.target.closest(".view-details-btn");
+        if (btn) {
+          const id = btn.dataset.id;
+          window.openReviewDrawer(id);
+        }
+      });
+
+      // Search filter handler
+      document.getElementById("history-search")?.addEventListener("input", (e) => {
+        renderTable(cachedReviews, e.target.value.trim());
+      });
+
       document.getElementById("drawer-close-btn")?.addEventListener("click", closeDrawer);
       document.getElementById("history-slide-over")?.addEventListener("click", (e) => {
         if (e.target.id === "history-slide-over") closeDrawer();
       });
     }
   });
-
-  function updateMetrics(list) {
-    document.getElementById("hist-total").textContent = list.length;
-    document.getElementById("hist-passed").textContent = list.filter(i => (i.overall_status || "").toLowerCase().includes("pass")).length;
-    document.getElementById("hist-attention").textContent = list.filter(i => (i.overall_status || "").toLowerCase().includes("need")).length;
-    document.getElementById("hist-approved").textContent = list.filter(i => (i.overall_status || "").toLowerCase().includes("approve")).length;
-  }
-
-  function renderMockTable(tbody, list) {
-    tbody.innerHTML = list.map(item => `
-      <tr>
-        <td><strong>#${item.id}</strong></td>
-        <td>${item.created_at}</td>
-        <td><code>${esc(item.submitted_content)}</code></td>
-        <td><span class="badge neutral">${item.issues.length} issues</span></td>
-        <td><span class="badge high">${esc(item.overall_status)}</span></td>
-        <td><button class="btn btn-secondary btn-sm" onclick="openReviewDrawer(${item.id})">View Details</button></td>
-      </tr>
-    `).join("");
-  }
 })();

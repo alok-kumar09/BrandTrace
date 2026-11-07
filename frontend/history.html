@@ -43,21 +43,24 @@
 
     <!-- Main History Table Container -->
     <section class="card">
-      <div class="panel-title" style="margin-bottom: 16px;">
+      <div class="panel-title" style="margin-bottom: 16px; flex-wrap: wrap; gap: 12px;">
         <h2>📜 Audit Log</h2>
-        <button id="refresh-history-btn" class="btn btn-secondary btn-sm" type="button">🔄 Refresh Log</button>
+        <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+          <input id="history-search" class="field" type="text" placeholder="Search audits or IDs..." style="font-size: 0.85rem; padding: 7px 12px; width: 220px;">
+          <button id="refresh-history-btn" class="btn btn-secondary btn-sm" type="button">🔄 Refresh Log</button>
+        </div>
       </div>
 
       <div class="table-responsive">
-        <table class="table" id="history-table">
+        <table class="table history-table" id="history-table">
           <thead>
             <tr>
-              <th>ID</th>
-              <th>Date</th>
-              <th>Content Excerpt</th>
-              <th>Issues</th>
-              <th>Status</th>
-              <th>Action</th>
+              <th style="width: 10%;">ID</th>
+              <th style="width: 16%;">Date</th>
+              <th style="width: 34%;">Content Excerpt</th>
+              <th style="width: 15%;">Issues</th>
+              <th style="width: 15%;">Status</th>
+              <th style="width: 10%; text-align: right;">Action</th>
             </tr>
           </thead>
           <tbody id="history-tbody">
