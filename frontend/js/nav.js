@@ -1,145 +1,322 @@
 
 (function () {
-  const THEME_KEY = "brandtrace.theme", SESSION_KEY = "brandtrace.session";
-  const safe = fn => { try { return fn(); } catch (e) { return null; } };
+  "use strict";
+
+  const THEME_KEY = "brandtrace.theme";
+  const SESSION_KEY = "brandtrace.session";
+
+  const safe = fn => {
+    try {
+      return fn();
+    } catch (error) {
+      return null;
+    }
+  };
 
   // ---- Theme ----
-  const stored = safe(() => localStorage.getItem(THEME_KEY));
-  let theme = stored || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+  const storedTheme = safe(() => localStorage.getItem(THEME_KEY));
+
+  let theme = storedTheme || (
+    window.matchMedia &&
+    window.matchMedia("(prefers-color-scheme: dark)").matches
+      ? "dark"
+      : "light"
+  );
+
   document.documentElement.dataset.theme = theme;
 
   // ---- Session ----
-  const session = safe(() => JSON.parse(localStorage.getItem(SESSION_KEY)));
+  const session = safe(() =>
+    JSON.parse(localStorage.getItem(SESSION_KEY))
+  ) || {};
 
-  const links = [
-    { href: "landing.html", label: "Home" },
-    { href: "index.html", label: "Dashboard" },
-    { href: "guidelines.html", label: "Guidelines" },
-    { href: "settings.html", label: "Settings" },
-    { href: "about.html", label: "About" },
+  const userName =
+    typeof session.name === "string" && session.name.trim()
+      ? session.name.trim()
+      : "Demo Judge";
+
+  const userRole =
+    typeof session.role === "string" && session.role.trim()
+      ? session.role.trim()
+      : "Brand Manager";
+
+  const orgName =
+    typeof session.org === "string" && session.org.trim()
+      ? session.org.trim()
+      : "NovaTech Devices";
+
+  const navLinks = [
+    { href: "index.html", label: "Dashboard", icon: "📊" },
+    { href: "index.html#workbench", label: "Content Analysis", icon: "🔍" },
+    { href: "guidelines.html", label: "Brand Guidelines", icon: "⚙️" },
+    { href: "history.html", label: "Review History", icon: "📜" },
+    { href: "approvals.html", label: "Review Approvals", icon: "🛡️" },
+    { href: "settings.html", label: "Organisation & Members", icon: "👥" },
+    { href: "about.html", label: "Governance & About", icon: "ℹ️" }
   ];
 
   const current = location.pathname.split("/").pop() || "index.html";
-  const items = links.map(l =>
-    `<a href="${l.href}" class="${l.href === current ? "active" : ""}">${l.label}</a>`
-  ).join("");
 
-  const esc = s => String(s).replace(/[&<>"']/g, c => ({
-    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
-  }[c]));
+  const esc = value =>
+    String(value).replace(/[&<>"']/g, char => ({
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      '"': "&quot;",
+      "'": "&#39;"
+    })[char]);
 
-  // ---- User session ----
-  const userHTML = (mobile = false) => session
-    ? `<div class="user-chip">
-        <span>👤 ${esc(session.name)} · <small>${esc(session.role)}</small></span>
-        <button id="${mobile ? "mobile-logout-btn" : "logout-btn"}" class="link-btn" data-logout type="button">Sign out</button>
-      </div>`
-    : `<a class="btn btn-primary btn-sm" href="auth.html">Sign in</a>`;
+  const isPublicPage =
+    document.body.classList.contains("auth-body") ||
+    current === "landing.html" ||
+    current === "auth.html";
 
-  // ---- Header structure ----
-  const header = document.createElement("header");
-  header.className = "site-header";
+  // ---- Inject Internal Application Shell ----
+  if (!isPublicPage) {
+    document.body.classList.add("app-shell-layout");
 
-  header.innerHTML = `
-    <div class="header-inner">
-      <a class="logo" href="landing.html">Brand<span>Trace</span></a>
-      <nav class="nav-links" aria-label="Main navigation">${items}</nav>
-      <div id="backend-status" class="status-badge">🟡 Checking…</div>
-      <button id="hamburger-toggle" class="hamburger-btn" type="button"
-        aria-label="Toggle navigation menu" aria-expanded="false"
-        aria-controls="mobile-nav-drawer">☰</button>
-      <button id="theme-toggle" class="icon-btn" type="button"
-        aria-label="Toggle dark mode"></button>
-      <div class="desktop-session">${userHTML()}</div>
-    </div>
-    <div id="mobile-nav-drawer" class="mobile-nav-drawer"
-      aria-label="Mobile navigation" aria-hidden="true">
-      <nav class="mobile-nav-links" aria-label="Mobile main navigation">${items}</nav>
-      <div class="mobile-nav-footer">
-        ${userHTML(true)}
-        <button id="mobile-theme-toggle" class="icon-btn" type="button"
-          aria-label="Toggle dark mode"></button>
-      </div>
-    </div>
-  `;
+    const sidebarHTML = `
+      <aside class="app-sidebar" id="app-sidebar">
 
-  document.body.prepend(header);
+        <div class="sidebar-header">
+          <a class="logo" href="landing.html">
+            Brand<span>Trace</span>
+          </a>
 
-  // ---- Theme controls ----
-  const themeToggles = [
-    document.getElementById("theme-toggle"),
-    document.getElementById("mobile-theme-toggle")
-  ];
+          <div class="org-selector-pill">
+            🏢 <strong>${esc(orgName)}</strong>
+          </div>
+        </div>
 
-  const paint = () => {
-    themeToggles.forEach(toggle => {
-      toggle.textContent = theme === "dark" ? "☀️" : "🌙";
-      toggle.title = theme === "dark" ? "Switch to light mode" : "Switch to dark mode";
+        <nav class="sidebar-nav" aria-label="Main SaaS Navigation">
+
+          ${navLinks.map(link => {
+            const active =
+              link.href === current ||
+              (
+                link.href === "index.html#workbench" &&
+                current === "index.html" &&
+                location.hash === "#workbench"
+              );
+
+            return `
+              <a href="${link.href}"
+                 class="nav-item${active ? " active" : ""}">
+
+                <span class="icon">${link.icon}</span>
+                <span class="label">${link.label}</span>
+
+              </a>
+            `;
+          }).join("")}
+
+        </nav>
+
+        <div class="sidebar-footer">
+
+          <div id="backend-status" class="status-badge-pill">
+            🟡 Live API
+          </div>
+
+          <div class="sidebar-user">
+
+            <div class="user-avatar">
+              ${esc(userName.charAt(0).toUpperCase())}
+            </div>
+
+            <div class="user-meta">
+              <strong>${esc(userName)}</strong>
+              <small>${esc(userRole)}</small>
+            </div>
+
+            <button
+              id="logout-btn"
+              class="icon-btn-sm"
+              title="Sign out"
+              aria-label="Sign out"
+              type="button">
+              🚪
+            </button>
+
+          </div>
+        </div>
+
+      </aside>
+    `;
+
+    const topbarHTML = `
+      <header class="app-topbar">
+
+        <button
+          id="sidebar-toggle"
+          class="hamburger-btn"
+          type="button"
+          aria-label="Toggle Navigation">
+          ☰
+        </button>
+
+        <div class="topbar-right">
+
+          <button
+            id="theme-toggle"
+            class="icon-btn"
+            type="button"
+            aria-label="Toggle Theme">
+            🌙
+          </button>
+
+          <a href="index.html#workbench"
+             class="btn btn-primary btn-sm">
+            🚀 New Audit
+          </a>
+
+        </div>
+      </header>
+    `;
+
+    // ---- Wrap Main Content ----
+    const mainEl =
+      document.querySelector("main") ||
+      document.body.firstElementChild;
+
+    const wrapper = document.createElement("div");
+    wrapper.className = "app-main-container";
+
+    const contentArea = document.createElement("div");
+    contentArea.className = "app-content-area";
+
+    wrapper.appendChild(contentArea);
+    document.body.prepend(wrapper);
+
+    if (mainEl && mainEl !== wrapper) {
+      contentArea.appendChild(mainEl);
+    }
+
+    document.body.insertAdjacentHTML(
+      "afterbegin",
+      sidebarHTML
+    );
+
+    contentArea.insertAdjacentHTML(
+      "afterbegin",
+      topbarHTML
+    );
+
+    // ---- Enterprise Footer ----
+    if (!document.querySelector(".saas-enterprise-footer")) {
+
+      wrapper.insertAdjacentHTML("beforeend", `
+        <footer class="saas-enterprise-footer">
+
+          <div>
+            <strong>BrandTrace Enterprise</strong>
+            · AI-Powered Brand Governance
+          </div>
+
+          <div class="footer-links">
+            <a href="index.html">Dashboard</a>
+            <a href="guidelines.html">Guidelines</a>
+            <a href="history.html">History Log</a>
+            <a href="approvals.html">Approvals</a>
+          </div>
+
+        </footer>
+      `);
+    }
+  }
+
+  // ---- Theme Toggles ----
+  const themeToggles = document.querySelectorAll(
+    "#theme-toggle, #mobile-theme-toggle"
+  );
+
+  const paintThemeButtons = () => {
+    themeToggles.forEach(button => {
+      button.textContent = theme === "dark" ? "☀️" : "🌙";
     });
   };
 
   const toggleTheme = () => {
     theme = theme === "dark" ? "light" : "dark";
+
     document.documentElement.dataset.theme = theme;
-    safe(() => localStorage.setItem(THEME_KEY, theme));
-    paint();
+
+    safe(() =>
+      localStorage.setItem(THEME_KEY, theme)
+    );
+
+    paintThemeButtons();
   };
 
-  paint();
-  themeToggles.forEach(toggle => toggle.addEventListener("click", toggleTheme));
+  paintThemeButtons();
 
-  // ---- Mobile navigation drawer ----
-  const hamburger = document.getElementById("hamburger-toggle");
-  const drawer = document.getElementById("mobile-nav-drawer");
-
-  const closeMenu = () => {
-    drawer.classList.remove("open");
-    hamburger.textContent = "☰";
-    hamburger.setAttribute("aria-expanded", "false");
-    drawer.setAttribute("aria-hidden", "true");
-  };
-
-  const openMenu = () => {
-    drawer.classList.add("open");
-    hamburger.textContent = "✕";
-    hamburger.setAttribute("aria-expanded", "true");
-    drawer.setAttribute("aria-hidden", "false");
-  };
-
-  const toggleMenu = () => {
-    drawer.classList.contains("open") ? closeMenu() : openMenu();
-  };
-
-  hamburger.addEventListener("click", toggleMenu);
-
-  // Close when a navigation link is selected.
-  drawer.querySelectorAll("a").forEach(link => {
-    link.addEventListener("click", closeMenu);
+  themeToggles.forEach(button => {
+    button.addEventListener("click", toggleTheme);
   });
 
-  // Close when clicking outside the drawer and hamburger.
+  // ---- Mobile Sidebar ----
+  const sidebar = document.getElementById("app-sidebar");
+  const toggleButton = document.getElementById("sidebar-toggle");
+
+  const closeMobileSidebar = () => {
+    sidebar?.classList.remove("mobile-open");
+  };
+
+  toggleButton?.addEventListener("click", event => {
+    event.stopPropagation();
+    sidebar?.classList.toggle("mobile-open");
+  });
+
+  sidebar?.querySelectorAll("a").forEach(link => {
+    link.addEventListener("click", closeMobileSidebar);
+  });
+
   document.addEventListener("click", event => {
-    if (!drawer.contains(event.target) && !hamburger.contains(event.target)) {
-      closeMenu();
+
+    if (
+      sidebar?.classList.contains("mobile-open") &&
+      !sidebar.contains(event.target) &&
+      event.target !== toggleButton
+    ) {
+      closeMobileSidebar();
     }
+
   });
 
-  // Close when Escape is pressed.
-  document.addEventListener("keydown", event => {
-    if (event.key === "Escape") closeMenu();
-  });
+  // ---- Sign Out ----
+  document.querySelectorAll(
+    "#logout-btn, [data-logout]"
+  ).forEach(button => {
 
-  // ---- Logout ----
-  document.querySelectorAll("[data-logout]").forEach(button => {
     button.addEventListener("click", () => {
-      safe(() => localStorage.removeItem(SESSION_KEY));
-      location.href = "landing.html";
+
+      safe(() => {
+        localStorage.removeItem(SESSION_KEY);
+      });
+
+      location.href = "auth.html";
+
     });
+
   });
 
-  // ---- Backend status ----
+  // ---- Backend Status ----
   window.setBackendStatus = function (live) {
-    const el = document.getElementById("backend-status");
-    if (el) el.textContent = live ? "🟢 Live API" : "🟡 Mock Mode";
+
+    const element = document.getElementById(
+      "backend-status"
+    );
+
+    if (!element) return;
+
+    element.textContent = live
+      ? "🟢 Live API Connected"
+      : "🟡 Offline Mock Mode";
+
+    element.style.borderColor = live
+      ? "var(--success)"
+      : "var(--warning)";
+
   };
+
 })();

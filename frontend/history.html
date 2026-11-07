@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>BrandTrace – Review History</title>
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/dashboard.css">
+  <link rel="stylesheet" href="css/pages.css">
+  <script>
+    document.documentElement.dataset.theme = localStorage.getItem("brandtrace.theme") || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+  </script>
+</head>
+
+<body data-page="history">
+  <main class="container">
+    <div class="page-head">
+      <h1>Review History</h1>
+      <p>Track historical brand compliance audits, issue counts, and human sign-off statuses.</p>
+    </div>
+
+    <!-- Summary Metrics Header -->
+    <div class="stats-row">
+      <div class="stat">
+        <div class="value" id="hist-total">0</div>
+        <div class="name">Total Audits</div>
+      </div>
+      <div class="stat ok">
+        <div class="value" id="hist-passed">0</div>
+        <div class="name">Passed</div>
+      </div>
+      <div class="stat danger">
+        <div class="value" id="hist-attention">0</div>
+        <div class="name">Needs Attention</div>
+      </div>
+      <div class="stat brand">
+        <div class="value" id="hist-approved">0</div>
+        <div class="name">Approved</div>
+      </div>
+    </div>
+
+    <!-- Main History Table Container -->
+    <section class="card">
+      <div class="panel-title" style="margin-bottom: 16px;">
+        <h2>📜 Audit Log</h2>
+        <button id="refresh-history-btn" class="btn btn-secondary btn-sm" type="button">🔄 Refresh Log</button>
+      </div>
+
+      <div class="table-responsive">
+        <table class="table" id="history-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Date</th>
+              <th>Content Excerpt</th>
+              <th>Issues</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="history-tbody">
+            <tr>
+              <td colspan="6" style="text-align: center; padding: 32px; color: var(--muted);">Loading review history from backend...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Slide-Over Inspection Modal Backdrop & Container -->
+    <div id="history-slide-over" class="slide-over-backdrop" hidden>
+      <div class="slide-over-panel">
+        <div class="slide-over-header">
+          <h3 id="drawer-title">Audit Review Details</h3>
+          <button id="drawer-close-btn" class="icon-btn" type="button">✕</button>
+        </div>
+        <div id="drawer-content" class="slide-over-body">
+          <!-- Populated dynamically -->
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="js/nav.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/sample-data.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/history.js"></script>
+</body>
+</html>

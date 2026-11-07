@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <script>document.documentElement.dataset.theme=localStorage.getItem("brandtrace.theme")||(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light")</script>
+  <script>document.documentElement.dataset.theme = localStorage.getItem("brandtrace.theme") || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light")</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>BrandTrace – Sign in</title>
@@ -10,6 +11,7 @@
   <link rel="stylesheet" href="css/dashboard.css">
   <link rel="stylesheet" href="css/pages.css">
 </head>
+
 <body data-page="auth">
   <main class="auth-wrap">
     <div class="card auth-card">
@@ -35,18 +37,23 @@
         <div class="form-group">
           <label>Role</label>
           <div class="role-grid">
-            <label class="role-card"><input type="radio" name="role" value="Brand Manager" checked><strong>Brand Manager</strong><small>Edit guidelines &amp; settings</small></label>
-            <label class="role-card"><input type="radio" name="role" value="Content Creator"><strong>Content Creator</strong><small>Draft &amp; audit content</small></label>
+            <label class="role-card"><input type="radio" name="role" value="Brand Manager" checked><strong>Brand
+                Manager</strong><small>Edit guidelines &amp; settings</small></label>
+            <label class="role-card"><input type="radio" name="role" value="Content Creator"><strong>Content
+                Creator</strong><small>Draft &amp; audit content</small></label>
           </div>
         </div>
         <div id="auth-error" class="error-msg" role="alert"></div>
-        <button id="auth-submit" class="btn btn-primary btn-lg" style="width:100%;justify-content:center" type="submit">Sign in</button>
+        <button id="auth-submit" class="btn btn-primary btn-lg" style="width:100%;justify-content:center"
+          type="submit">Sign in</button>
       </form>
       <div class="divider">or</div>
-      <button id="guest-btn" class="btn btn-secondary" style="width:100%;justify-content:center" type="button">Continue as demo judge</button>
+      <button id="guest-btn" class="btn btn-secondary" style="width:100%;justify-content:center" type="button">Continue
+        as demo judge</button>
     </div>
   </main>
   <script src="js/nav.js"></script>
   <script src="js/auth.js"></script>
 </body>
+
 </html>

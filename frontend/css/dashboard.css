@@ -282,3 +282,463 @@ textarea.field { min-height: 110px; resize: vertical; }
 [data-theme="dark"] .principle h3 {
   color: var(--accent);
 }
+
+/* =========================================
+   SaaS App Shell Layout Grid
+   ========================================= */
+body.app-shell-layout {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  min-height: 100vh;
+  background: var(--bg);
+  overflow-x: hidden;
+}
+
+.app-sidebar {
+  background: var(--dark);
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  border-right: 1px solid var(--border);
+  z-index: 100;
+  transition: transform 0.25s ease;
+}
+
+.sidebar-header {
+  padding: 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.sidebar-header .logo {
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: #fff;
+  text-decoration: none;
+  display: block;
+  margin-bottom: 10px;
+}
+
+.sidebar-header .logo span {
+  color: var(--accent);
+}
+
+.org-selector-pill {
+  background: rgba(255, 255, 255, 0.06);
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  color: #D5DED5;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sidebar-nav {
+  padding: 16px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+  overflow-y: auto;
+}
+
+.sidebar-nav .nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  color: #B2C2B1;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 0.92rem;
+  transition: all 0.2s ease;
+}
+
+.sidebar-nav .nav-item:hover {
+  background: rgba(118, 149, 121, 0.16);
+  color: #fff;
+  transform: translateX(3px);
+}
+
+.sidebar-nav .nav-item.active {
+  background: var(--primary);
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(49, 91, 67, 0.3);
+}
+
+.sidebar-footer {
+  padding: 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.status-badge-pill {
+  font-size: 0.75rem;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(173, 120, 53, 0.15);
+  color: var(--warning);
+  text-align: center;
+  font-weight: 600;
+  border: 1px solid transparent;
+}
+
+.sidebar-user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 8px 12px;
+  border-radius: 8px;
+}
+
+.user-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: #fff;
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  font-size: 0.9rem;
+  flex-shrink: 0;
+}
+
+.user-meta {
+  flex: 1;
+  min-width: 0;
+}
+
+.user-meta strong {
+  display: block;
+  font-size: 0.85rem;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.user-meta small {
+  display: block;
+  font-size: 0.72rem;
+  color: var(--accent);
+}
+
+.icon-btn-sm {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+  padding: 4px;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+}
+
+.icon-btn-sm:hover {
+  opacity: 1;
+}
+
+/* App Content Area & Topbar */
+.app-main-container {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.app-topbar {
+  height: 64px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  position: sticky;
+  top: 0;
+  z-index: 40;
+}
+
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-left: auto;
+}
+
+.hamburger-btn {
+  display: none;
+  background: none;
+  border: none;
+  font-size: 1.4rem;
+  cursor: pointer;
+  color: var(--text);
+}
+
+/* =========================================
+   SaaS Micro-Interactions & Pop/Depth Effects
+   ========================================= */
+.card, .stat, .issue-card {
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s ease;
+}
+
+.card:hover, .stat:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 14px 34px rgba(38, 52, 43, 0.08), 0 4px 12px rgba(38, 52, 43, 0.04);
+  border-color: var(--accent);
+}
+
+.btn {
+  transition: transform 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+}
+
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(49, 91, 67, 0.25);
+}
+
+/* Responsive breakpoint for mobile layout */
+/* ---- Tablet & Mobile Layout Fixes ---- */
+@media (max-width: 960px) {
+  body.app-shell-layout {
+    grid-template-columns: 1fr !important;
+  }
+  
+  .app-sidebar {
+    position: fixed;
+    left: -260px;
+    top: 0;
+    width: 260px;
+    height: 100vh;
+    z-index: 1000;
+  }
+  
+  .app-sidebar.mobile-open {
+    transform: translateX(260px);
+    box-shadow: 10px 0 30px rgba(0,0,0,0.3);
+  }
+
+  .layout-2col {
+    grid-template-columns: 1fr !important;
+  }
+
+  .sticky-aside {
+    position: static !important;
+    width: 100%;
+  }
+}
+/* =========================================
+   SaaS Shell & Main Content Layout Fixes
+   ========================================= */
+body.app-shell-layout {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  min-height: 100vh;
+  background: var(--bg);
+  overflow-x: hidden;
+  margin: 0;
+}
+
+.app-main-container {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 100vh;
+  justify-content: space-between; /* Ensures footer pushes to the bottom of big screens */
+}
+
+.app-content-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Internal SaaS Enterprise Footer */
+.saas-enterprise-footer {
+  width: 100%;
+  margin: auto 0 0 0;          /* Pushes to bottom, removes horizontal margins */
+  padding: 24px 40px;
+  background: var(--dark);
+  color: #D5DED5;
+  border-top: 1px solid var(--border);
+  box-sizing: border-border-box;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.88rem;
+}
+
+.saas-enterprise-footer .footer-links {
+  display: flex;
+  gap: 24px;
+}
+
+.saas-enterprise-footer .footer-links a {
+  color: #B2C2B1;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.saas-enterprise-footer .footer-links a:hover {
+  color: #ffffff;
+}
+
+@media (max-width: 960px) {
+  body.app-shell-layout {
+    grid-template-columns: 1fr;
+  }
+  .saas-enterprise-footer {
+    flex-direction: column;
+    gap: 16px;
+    text-align: center;
+    padding: 24px;
+  }
+}
+
+
+body.app-shell-layout .app-main-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  padding: 0;                   /* Removes outer padding around footer */
+}
+
+/* Content wrapper above the footer */
+.app-content-area {
+  flex: 1 0 auto;
+  padding: 24px 32px;           /* Keeps inner page content padded while footer bleeds edge-to-edge */
+}
+
+/* ---- SaaS Visual Polish ---- */
+.card {
+  border: 1px solid var(--border);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.card:hover {
+  border-color: var(--accent);
+  box-shadow: 0 8px 30px rgba(49, 91, 67, 0.08);
+}
+
+.btn-primary {
+  box-shadow: 0 4px 14px rgba(49, 91, 67, 0.25);
+}
+
+.stat {
+  position: relative;
+  overflow: hidden;
+}
+
+.stat::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background: var(--primary);
+  opacity: 0.6;
+}
+
+/* =========================================================
+   EDGE-TO-EDGE APP SHELL & FOOTER FIX
+   ========================================================= */
+body.app-shell-layout .app-main-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  width: 100%;
+}
+
+body.app-shell-layout .app-content-area {
+  display: flex;
+  flex-direction: column;
+  flex: 1 0 auto;
+  width: 100%;
+  padding: 0 !important; /* Remove wrapping padding that floats inner containers */
+}
+
+/* Page inner container padding */
+body.app-shell-layout .app-content-area > main.container {
+  flex: 1 0 auto;
+  width: 100% !important;
+  max-width: 1400px !important;
+  margin: 0 auto !important;
+  padding: 32px 24px !important;
+}
+
+/* Flush Dashboard Enterprise Footer */
+body.app-shell-layout .saas-enterprise-footer {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: auto 0 0 0 !important;
+  padding: 32px 40px !important;
+  box-sizing: border-box;
+  background: var(--dark);
+  border-top: 1px solid var(--border);
+}
+
+
+/* ---- Skeleton & Toast Polish ---- */
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--surface-alt) 25%,
+    var(--border) 37%,
+    var(--surface-alt) 63%
+  );
+  background-size: 400% 100%;
+  animation: shimmer 1.4s ease infinite;
+  border-radius: 6px;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0 50%;
+  }
+}
+
+.sk-line {
+  height: 12px;
+  margin: 12px 0;
+}
+
+.sk-block {
+  height: 44px;
+  margin-top: 14px;
+}
+
+.w40 { width: 40%; }
+.w70 { width: 70%; }
+.w90 { width: 90%; }
+
+.skeleton-card {
+  pointer-events: none;
+  min-height: 150px;
+}
+
+.sk-label {
+  margin-bottom: 16px;
+  color: var(--text-muted);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/* Respect reduced-motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  .skeleton {
+    animation: none;
+  }
+}

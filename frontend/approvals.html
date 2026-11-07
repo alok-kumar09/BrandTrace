@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <script>document.documentElement.dataset.theme = localStorage.getItem("brandtrace.theme") || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light")</script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>BrandTrace – Review Approval Workflow</title>
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/dashboard.css">
+  <link rel="stylesheet" href="css/pages.css">
+</head>
+
+<body data-page="approvals">
+  <main class="container">
+    <div class="page-head">
+      <h1>Review Approval Workflow</h1>
+      <p>Sign off on high-severity content warnings or reject non-compliant marketing copy before publication.</p>
+    </div>
+
+    <!-- Summary Counts -->
+    <div class="stats-row">
+      <div class="stat">
+        <div class="value" id="appr-pending">0</div>
+        <div class="name">Pending Sign-off</div>
+      </div>
+      <div class="stat ok">
+        <div class="value" id="appr-signed">0</div>
+        <div class="name">Approved Reviews</div>
+      </div>
+      <div class="stat danger">
+        <div class="value" id="appr-rejected">0</div>
+        <div class="name">Rejected Reviews</div>
+      </div>
+    </div>
+
+    <!-- Approvals Queue Card -->
+    <section class="card">
+      <div class="panel-title" style="margin-bottom: 16px;">
+        <h2>🛡️ Pending Approvals Queue</h2>
+        <button id="refresh-approvals-btn" class="btn btn-secondary btn-sm" type="button">🔄 Refresh Queue</button>
+      </div>
+
+      <div id="approvals-container" class="results">
+        <div class="empty-state">
+          <div class="icon">⏳</div>
+          <h3>Loading approvals queue...</h3>
+          <p>Fetching items awaiting governance sign-off.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="js/nav.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/approvals.js"></script>
+</body>
+
+</html>

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -8,36 +9,77 @@
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/dashboard.css">
   <link rel="stylesheet" href="css/pages.css">
+  <script>
+    document.documentElement.dataset.theme = localStorage.getItem("brandtrace.theme") || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+  </script>
 </head>
-<script>document.documentElement.dataset.theme=localStorage.getItem("brandtrace.theme")||(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light")</script>
+
 <body data-page="about">
   <main class="container">
     <div class="page-head">
-      <h1>About BrandTrace</h1>
+      <h1>About BrandTrace &amp; Governance</h1>
       <p>An AI-powered brand governance platform that keeps humans in control of every decision.</p>
     </div>
+
+    <!-- System Health & API Status Widget -->
+    <section class="card" style="margin-bottom: 24px;">
+      <div class="panel-title">
+        <h2>🟢 System Health &amp; Model Status</h2>
+        <span id="about-health-badge" class="badge neutral">Checking API...</span>
+      </div>
+      <p id="about-health-details" style="font-size: 0.9rem; color: var(--muted);">Pinging backend endpoint at /api/health for latency and node status...</p>
+    </section>
+
     <section class="card">
       <h2>How it works</h2>
       <div class="steps">
-        <div class="step"><div class="num">1</div><h3>Configure</h3><p>Brand managers define tone, restricted words, and approved product facts.</p></div>
-        <div class="step"><div class="num">2</div><h3>Audit</h3><p>Draft content is analysed against the rules. Each issue gets a severity, an explanation, and a purpose-preserving edit.</p></div>
-        <div class="step"><div class="num">3</div><h3>Human Review</h3><p>A person accepts or rejects every suggestion. Nothing changes without explicit approval.</p></div>
+        <div class="step">
+          <div class="num">1</div>
+          <h3>Configure</h3>
+          <p>Brand managers define tone, restricted words, and approved product facts.</p>
+        </div>
+        <div class="step">
+          <div class="num">2</div>
+          <h3>Audit</h3>
+          <p>Draft content is analysed against the rules. Each issue gets a severity, an explanation, and a purpose-preserving edit.</p>
+        </div>
+        <div class="step">
+          <div class="num">3</div>
+          <h3>Human Review</h3>
+          <p>A person accepts or rejects every suggestion. Nothing changes without explicit approval.</p>
+        </div>
       </div>
     </section>
+
+    <!-- NIST AI RMF Alignment Card -->
     <section class="card" style="margin-top:24px">
-      <h2 style="margin-bottom:16px">Responsible design principles <span class="badge neutral">NIST AI RMF-inspired</span></h2>
+      <h2 style="margin-bottom:16px">Responsible design principles <span class="badge neutral">NIST AI RMF-aligned</span></h2>
       <div class="principles">
-        <div class="principle"><h3>Govern</h3><p>Guidelines are owned and editable by accountable brand managers, not hidden in model prompts.</p></div>
-        <div class="principle"><h3>Map</h3><p>Issues are categorised (restricted word, factual mismatch, tone) so risks are visible and scoped.</p></div>
-        <div class="principle"><h3>Measure</h3><p>Severity ratings (high, medium, low) let reviewers prioritise by potential impact.</p></div>
-        <div class="principle"><h3>Manage</h3><p>Human-in-the-loop approval, transparent explanations, and a graceful offline mode keep the system reliable.</p></div>
+        <div class="principle">
+          <h3>Govern</h3>
+          <p>Guidelines are owned and editable by accountable brand managers, not hidden in model prompts.</p>
+        </div>
+        <div class="principle">
+          <h3>Map</h3>
+          <p>Issues are categorised (restricted word, factual mismatch, tone) so risks are visible and scoped.</p>
+        </div>
+        <div class="principle">
+          <h3>Measure</h3>
+          <p>Severity ratings (high, medium, low) let reviewers prioritise by potential impact.</p>
+        </div>
+        <div class="principle">
+          <h3>Manage</h3>
+          <p>Human-in-the-loop approval, transparent explanations, and non-deterministic model safety controls keep the system reliable.</p>
+        </div>
       </div>
     </section>
   </main>
+
   <script src="js/nav.js"></script>
   <script src="js/storage.js"></script>
   <script src="js/sample-data.js"></script>
   <script src="js/api.js"></script>
+  <script src="js/about.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>
