@@ -52,7 +52,7 @@ def health():
     return {
         "status": "healthy",
         "application": "BrandTrace"
-    }
+    }),200
 
 
 if __name__ == "__main__":
