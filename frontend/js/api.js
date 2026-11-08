@@ -3,7 +3,7 @@ const ApiClient = (() => {
   const SESSION_KEY = "brandtrace.session";
 
   const cfg = {
-   .apiBase base: localStorage.getItem("brandtrace.apiBase") || "https://brandtrace-jhli.onrender.com",
+   .apiBase base: localStorage.getItem("brandtrace.apiBase") || "https://brandtrace-1-osnj.onrender.com/",
     prefix: "/api",
     timeoutMs: 6000,
     healthMs: 2000,
