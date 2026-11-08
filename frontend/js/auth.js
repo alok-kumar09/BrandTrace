@@ -77,7 +77,7 @@
       const res = await ApiClient.request("POST", endpoint, payload, undefined, { auth: false });
       if (!res || !res.access_token) throw new ApiClient.ApiError("Server did not return a session token.", 500);
       saveSession(res, email);
-      location.href = "index.html";
+      location.href = "content_analysis.html";
     } catch (err) {
       // NEVER fabricate a session here: show the real reason instead.
       if (err.status === 0 || err.name === "TypeError") {
@@ -103,7 +103,7 @@
     try {
       const res = await ApiClient.request("POST", "/auth/login", DEMO, undefined, { auth: false });
       saveSession(res, DEMO.email);
-      location.href = "index.html";
+      location.href = "content_analysis.html";
     } catch (err) {
       if (err.status === 0 || err.name === "TypeError") {
         ApiClient.setMock(true);
@@ -111,7 +111,7 @@
           access_token: null, token: null, user_id: 0, name: "Demo (offline)",
           email: DEMO.email, role: "Owner", org_id: 1, org: "NovaTech Devices", mock: true,
         });
-        location.href = "index.html";
+        location.href = "content_analysis.html";
       } else {
         showError("Demo account unavailable: " + (err.message || "unknown error"));
       }

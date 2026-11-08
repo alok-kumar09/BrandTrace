@@ -50,7 +50,7 @@
   // Every item is now its own real page, so active-state is a plain filename match.
   const navLinks = [
     { href: "dashboard.html",  label: "Dashboard",              icon: "📊" },
-    { href: "index.html",      label: "Content Analysis",       icon: "🔍" },
+    { href: "content_analysis.html",      label: "Content Analysis",       icon: "🔍" },
     { href: "guidelines.html", label: "Brand Guidelines",       icon: "⚙️" },
     { href: "history.html",    label: "Review History",         icon: "📜" },
     { href: "approvals.html",  label: "Review Approvals",       icon: "🛡️" },
@@ -58,7 +58,7 @@
     { href: "about.html",      label: "Governance & About",     icon: "ℹ️" }
   ];
 
-  const current = location.pathname.split("/").pop() || "index.html";
+  const current = location.pathname.split("/").pop() || "content_analysis.html";
 
   const esc = value =>
     String(value).replace(/[&<>"']/g, char => ({
@@ -71,7 +71,7 @@
 
   const isPublicPage =
     document.body.classList.contains("auth-body") ||
-    current === "landing.html" ||
+    current === "index.html" ||
     current === "auth.html";
 
   // ---- Auth guard: protected pages need a real JWT (or explicit offline demo) ----
@@ -102,7 +102,7 @@
       <aside class="app-sidebar" id="app-sidebar" aria-label="Sidebar">
 
         <div class="sidebar-header">
-          <a class="logo" href="landing.html">
+          <a class="logo" href="index.html">
             Brand<span>Trace</span>
           </a>
 
@@ -187,7 +187,7 @@
             🌙
           </button>
 
-          <a href="index.html"
+          <a href="content_analysis.html"
              class="btn btn-primary btn-sm">
             🚀 New Audit
           </a>

@@ -789,7 +789,7 @@ window.__btApp = function () {
     renderChips();
   }
 
-  // Quick-start presets used by the buttons in index.html's empty state.
+  // Quick-start presets used by the buttons in content_analysis.html's empty state.
   window.loadSamplePreset = function (kind) {
     const presets = {
       social: "Our new NovaBook Pro is the cheapest laptop ever \u2013 guaranteed to last all day! #unbeatable",

@@ -3,8 +3,11 @@ const ApiClient = (() => {
   const BASE_KEY = "brandtrace.apiBase";
   const MOCK_KEY = "brandtrace.forceMock";
 
+  const isLocal = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+  const defaultBase = isLocal ? "http://127.0.0.1:5000" : "https://brandtrace-jhli.onrender.com";
+
   const cfg = {
-    base: localStorage.getItem(BASE_KEY) || "http://127.0.0.1:5000",
+    base: localStorage.getItem(BASE_KEY) || defaultBase,
     prefix: "/api",
     timeoutMs: 8000,
     healthMs: 2000,

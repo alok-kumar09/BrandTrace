@@ -47,7 +47,7 @@
     if (!list.length) {
       tbody.innerHTML = `
         <tr><td colspan="5" style="text-align: center; padding: 32px; color: var(--muted);">
-          No audits yet. <a href="index.html">Analyse your first piece of copy</a> and it will appear here.
+          No audits yet. <a href="content_analysis.html">Analyse your first piece of copy</a> and it will appear here.
         </td></tr>`;
       return;
     }
