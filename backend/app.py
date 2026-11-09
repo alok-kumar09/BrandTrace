@@ -1,4 +1,4 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, send_from_directory
 from flask_cors import CORS
 from backend.config import Config
 from backend.routes.review import review_bp
@@ -8,7 +8,6 @@ from backend.routes.history import history_bp
 from backend.routes.approvals import approvals_bp
 from backend.routes.auth import auth_bp
 from backend.database import db
-
 from flask_jwt_extended import JWTManager
 import os
 from flask_migrate import Migrate
@@ -69,6 +68,20 @@ app.register_blueprint(history_bp)
 app.register_blueprint(approvals_bp)
 app.register_blueprint(auth_bp)
 
+# ---- Robust Frontend & Static Asset Routing ----
+@app.route("/")
+def serve_index():
+    return send_from_directory(app.static_folder, "index.html")
+
+@app.route("/<path:filename>")
+def serve_static(filename):
+    # Check if the requested file exists in the frontend folder (e.g. auth.html, js/auth.js, css/style.css)
+    file_path = os.path.join(app.static_folder, filename)
+    if os.path.exists(file_path) and os.path.isfile(file_path):
+        return send_from_directory(app.static_folder, filename)
+    
+    # If it's an API route that wasn't matched, let Flask handle 404 via errorhandler
+    return jsonify({"error": "Not found"}), 404
 
 @app.route("/")
 def home():
@@ -85,7 +98,6 @@ def health():
         "status": "healthy",
         "application": "BrandTrace"
     }
-
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
