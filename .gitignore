@@ -21,7 +21,7 @@ digest_full.txt
 digest_half.txt
 
 
-# backend/__pycache__/
+backend/__pycache__/
 # backend/tests/
 # frontend/__pycache__/
 # frontend/about.html
