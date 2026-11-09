@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify
-from models import ReviewHistory
-from services.access_control import organisation_member_required
+from backend.models import ReviewHistory
+from backend.services.access_control import organisation_member_required
 import json
 
 history_bp = Blueprint("history", __name__)

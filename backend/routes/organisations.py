@@ -1,8 +1,8 @@
 
 
 from flask import Blueprint, request, jsonify
-from database import db
-from models import (
+from backend.database import db
+from backend.models import (
     Organisation,
     OrganisationMember,
     User,
@@ -10,7 +10,7 @@ from models import (
     ReviewHistory
 )
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from services.access_control import (
+from backend.services.access_control import (
     organisation_member_required,
     organisation_admin_required
 )

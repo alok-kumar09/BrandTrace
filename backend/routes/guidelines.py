@@ -1,9 +1,9 @@
 
 from flask import Blueprint, request, jsonify
-from database import db
-from models import Organisation, BrandGuideline
+from backend.database import db
+from backend.models import Organisation, BrandGuideline
 import json
-from services.access_control import (
+from backend.services.access_control import (
     organisation_member_required,
     organisation_admin_required
 )

@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify
-from database import db
-from models import Organisation, BrandGuideline, ReviewHistory
-from services.access_control import organisation_member_required
+from backend.database import db
+from backend.models import Organisation, BrandGuideline, ReviewHistory
+from backend.services.access_control import organisation_member_required
 import json
 
 review_bp = Blueprint("review", __name__)

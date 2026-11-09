@@ -1,15 +1,16 @@
 from flask import Flask, jsonify
 from flask_cors import CORS
-from config import Config
-from database import db
-from routes.review import review_bp
-from routes.guidelines import guidelines_bp
-from routes.organisations import organisations_bp
-from routes.history import history_bp
-from routes.approvals import approvals_bp
+from backend.config import Config
+from backend.routes.review import review_bp
+from backend.routes.guidelines import guidelines_bp
+from backend.routes.organisations import organisations_bp
+from backend.routes.history import history_bp
+from backend.routes.approvals import approvals_bp
+from backend.routes.auth import auth_bp
+from backend.database import db
+
 from flask_jwt_extended import JWTManager
 import os
-from routes.auth import auth_bp
 from flask_migrate import Migrate
 
 app = Flask(__name__)
@@ -58,7 +59,7 @@ db.init_app(app)
 migrate = Migrate(app, db)
 
 with app.app_context():
-    from services.bootstrap import bootstrap
+    from backend.services.bootstrap import bootstrap
     bootstrap()
 
 app.register_blueprint(review_bp)

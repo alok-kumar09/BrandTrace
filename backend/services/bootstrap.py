@@ -6,8 +6,8 @@ import json
 
 from werkzeug.security import generate_password_hash
 
-from database import db
-from models import Organisation, OrganisationMember, User, BrandGuideline
+from backend.database import db
+from backend.models import Organisation, OrganisationMember, User, BrandGuideline
 
 DEMO_ORG_ID = 1
 DEMO_ORG_NAME = "NovaTech Devices"

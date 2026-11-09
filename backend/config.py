@@ -17,4 +17,6 @@ class Config:
     JWT_SECRET_KEY = os.getenv(
         "JWT_SECRET_KEY", "brandtrace-jwt-dev-key-change-before-deployment"
     )
+    print("JWT_SECRET_KEY:", JWT_SECRET_KEY, "from env" if os.getenv("JWT_SECRET_KEY") else "default")
+    print("SECRET_KEY:", SECRET_KEY, "from env" if os.getenv("SECRET_KEY") else "default")
     JWT_ACCESS_TOKEN_EXPIRES = 60 * 60 * 24

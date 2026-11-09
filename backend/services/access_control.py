@@ -4,8 +4,8 @@ from functools import wraps
 from flask import jsonify, request
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
-from database import db
-from models import Organisation, OrganisationMember
+from backend.database import db
+from backend.models import Organisation, OrganisationMember
 
 
 def get_organisation_id(kwargs):

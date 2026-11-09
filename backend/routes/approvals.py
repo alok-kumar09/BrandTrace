@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify
-from database import db
-from models import Organisation, ReviewHistory
-from services.access_control import organisation_admin_required
+from backend.database import db
+from backend.models import Organisation, ReviewHistory
+from backend.services.access_control import organisation_admin_required
 
 approvals_bp = Blueprint("approvals", __name__)
 
