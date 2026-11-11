@@ -34,3 +34,14 @@ frontend/__pycache__/
 # frontend/landing.html
 # frontend/settings.html
 # frontend/css/
+# Environment secrets
+.env
+
+# Python cache files
+__pycache__/
+*.py[cod]
+
+# Local tokens and backups
+*_token.txt
+*.backup
+*.safety

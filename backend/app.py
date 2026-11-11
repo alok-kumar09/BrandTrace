@@ -7,12 +7,18 @@ from backend.routes.organisations import organisations_bp
 from backend.routes.history import history_bp
 from backend.routes.approvals import approvals_bp
 from backend.routes.auth import auth_bp
+from backend.routes.rewriting import rewriting_bp
+from backend.routes.analytics import analytics_bp
 from backend.database import db
 from flask_jwt_extended import JWTManager
 import os
 from flask_migrate import Migrate
 
-app = Flask(__name__)
+app = Flask(
+    __name__,
+    static_folder="../frontend",
+    static_url_path=""
+)
 
 # Load application configuration
 app.config.from_object(Config)
@@ -67,23 +73,14 @@ app.register_blueprint(organisations_bp)
 app.register_blueprint(history_bp)
 app.register_blueprint(approvals_bp)
 app.register_blueprint(auth_bp)
+app.register_blueprint(rewriting_bp)
+app.register_blueprint(analytics_bp)
 
 # ---- Robust Frontend & Static Asset Routing ----
+# ---- Frontend Routing ----
 @app.route("/")
 def serve_index():
-    return send_from_directory(app.static_folder, "index.html")
-
-@app.route("/<path:filename>")
-def serve_static(filename):
-    # Check if the requested file exists in the frontend folder (e.g. auth.html, js/auth.js, css/style.css)
-    file_path = os.path.join(app.static_folder, filename)
-    if os.path.exists(file_path) and os.path.isfile(file_path):
-        return send_from_directory(app.static_folder, filename)
-    
-    # If it's an API route that wasn't matched, let Flask handle 404 via errorhandler
-    return jsonify({"error": "Not found"}), 404
-
-@app.route("/")
+    return app.send_static_file("index.html")
 def home():
     return {
         "message": "BrandTrace Backend Running",
