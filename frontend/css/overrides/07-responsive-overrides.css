@@ -1,0 +1,241 @@
+/* =========================================================
+   PAGE LAYOUT, OVERFLOW, TABLE AND FOOTER FIXES
+   These rules intentionally come last to override legacy styles.
+   ========================================================= */
+
+/* Prevent grid/flex children from forcing the page wider than the viewport. */
+.container,
+.layout-2col,
+.layout-2col > *,
+.settings-stack,
+.form-card,
+.card,
+.sticky-aside {
+  min-width: 0;
+}
+
+.layout-2col {
+  grid-template-columns: minmax(0, 1fr) minmax(260px, 340px);
+  align-items: stretch;
+  gap: clamp(16px, 2.2vw, 28px);
+}
+
+.layout-2col .settings-stack {
+  width: 100%;
+  max-width: none;
+}
+
+.sticky-aside {
+  align-self: stretch;
+  align-content: start;
+  min-width: 0;
+}
+
+/* Forms and nested cards must wrap instead of expanding across the sidebar. */
+.form-card,
+.settings-stack > .card,
+.settings-stack > form,
+.settings-stack > section {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.form-group,
+.field-row,
+.editor-actions,
+.panel-title {
+  min-width: 0;
+}
+
+.field,
+textarea.field,
+select.field,
+input.field {
+  max-width: 100%;
+  min-width: 0;
+}
+
+.field-row {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.editor-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.editor-actions .save-status {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+/* Tabs: allow labels and controls to shrink/wrap; avoid overlapping panels. */
+.tabs {
+  display: flex;
+  flex-wrap: wrap;
+  min-width: 0;
+  gap: 4px;
+}
+
+.tabs > *,
+.tab-list > *,
+[role="tablist"] > * {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.tab-panel,
+[role="tabpanel"],
+.tab-content,
+.tab-pane {
+  min-width: 0;
+  max-width: 100%;
+  width: 100%;
+  position: relative;
+  clear: both;
+}
+
+.table-responsive {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+.table-responsive .table {
+  width: 100%;
+  min-width: 560px;
+}
+
+.table th,
+.table td {
+  overflow-wrap: anywhere;
+  vertical-align: top;
+}
+
+/* Footer is inside main.container in guidelines.html/settings.html.
+   Break it out to the viewport edges rather than the centered content width. */
+.enterprise-footer {
+  width: 100vw;
+  max-width: 100vw;
+  margin: 64px 0 0 calc(50% - 50vw) !important;
+  padding: 48px max(24px, calc((100vw - 1200px) / 2)) 24px !important;
+  box-sizing: border-box;
+  position: relative;
+  clear: both;
+}
+
+.enterprise-footer .footer-bottom {
+  width: 100%;
+  max-width: 1200px;
+  margin-inline: auto;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+
+.enterprise-footer a {
+  overflow-wrap: anywhere;
+}
+
+/* Existing dashboard shell: keep the left navigation full-height and footer full-width. */
+body.app-shell-layout {
+  min-height: 100vh;
+  grid-template-columns: 260px minmax(0, 1fr);
+  align-items: stretch;
+}
+
+body.app-shell-layout .app-sidebar {
+  min-height: 100vh;
+  height: 100%;
+  align-self: stretch;
+}
+
+body.app-shell-layout .app-main-container {
+  min-width: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+body.app-shell-layout .app-content-area {
+  min-width: 0;
+  flex: 1 0 auto;
+}
+
+.enterprise-footer,
+.saas-enterprise-footer {
+  width: 100% !important;
+  max-width: 100vw !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  box-sizing: border-box;
+  clear: both;
+}
+
+body.app-shell-layout .saas-enterprise-footer,
+body.app-shell-layout .enterprise-footer {
+  width: 100% !important;
+  margin-left: 0 !important;
+  padding-left: 24px !important;
+  padding-right: 24px !important;
+}
+@media (max-width: 1000px) {
+  .layout-2col {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .sticky-aside {
+    position: static;
+    width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  .enterprise-footer {
+    padding: 32px 20px 20px !important;
+  }
+
+  .enterprise-footer .footer-bottom,
+  .saas-enterprise-footer {
+    flex-direction: column;
+    gap: 16px;
+    text-align: center;
+  }
+}
+
+@media (max-width: 600px) {
+  .layout-2col {
+    gap: 16px;
+  }
+
+  .role-grid,
+  .features,
+  .stats-row,
+  .field-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .panel-title {
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .enterprise-footer {
+    padding: 28px 16px 18px !important;
+  }
+}
+
+/* ---- Fix Dashboard App Shell Content Boxing ---- */
+body.app-shell-layout .app-content-area .container {
+  width: 100% !important;
+  max-width: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}

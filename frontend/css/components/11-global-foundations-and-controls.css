@@ -253,7 +253,7 @@ button,
 .btn-ghost-danger { border-color: var(--danger-soft); background: var(--surface); color: var(--danger); }
 .btn-ghost-danger:hover { background: var(--danger-soft); }
 .btn-sm { padding: 7px 14px; font-size: .85rem; }
-.btn-lg { padding: 14px 28px; font-size: 1rem; }
+
 
 .spinner {
   width: 16px;
@@ -284,8 +284,8 @@ button,
 
 .toast.show { opacity: 1; transform: none; }
 .toast.success { border-left: 4px solid var(--success); }
-.toast.error { border-left: 4px solid var(--danger); }
-.toast.info { border-left: 4px solid var(--info); }
+
+
 
 .icon-btn {
   display: inline-grid;
@@ -299,7 +299,7 @@ button,
   cursor: pointer;
 }
 
-.icon-btn:hover { background: var(--border); }
+
 
 .user-chip {
   display: flex;
@@ -309,7 +309,7 @@ button,
   font-size: .85rem;
 }
 
-.user-chip small { color: var(--accent); }
+
 
 .link-btn {
   border: 0;
@@ -338,17 +338,14 @@ button,
   background: var(--surface);
 }
 
-[data-theme="dark"] .excerpt { color: var(--danger); }
+
 
 [data-theme="dark"] .suggestion {
   border-color: var(--border);
   color: var(--success);
 }
 
-[data-theme="dark"] .btn-ghost-danger {
-  border-color: var(--border);
-  background: transparent;
-}
+
 
 @media (max-width: 768px) {
   .header-inner {

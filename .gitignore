@@ -22,8 +22,9 @@ digest_half.txt
 
 
 backend/__pycache__/
+__pycache__/
 # backend/tests/
-# frontend/__pycache__/
+frontend/__pycache__/
 # frontend/about.html
 # frontend/approvals.html
 # frontend/auth.html

@@ -1,0 +1,83 @@
+/* =========================================
+
+   BRANDTRACE — PAGE REFINEMENTS
+
+   ========================================= */
+
+
+
+/* Hero */
+
+.hero {
+  background: radial-gradient(
+
+      900px 400px at 50% -10%,
+
+      var(--primary-soft),
+
+      transparent
+
+    );
+}
+
+/* Feature cards */
+
+.feature {
+  border-color: var(--border);
+}
+
+/* Statistics */
+
+.stat {
+  border-color: var(--border);
+}
+
+/* Authentication */
+
+.tabs {
+  background: var(--surface-alt);
+}
+
+/* Role selection */
+
+
+
+/* Sidebar tips */
+
+.tip-card {
+  background: var(--primary-soft);
+}
+
+/* Tables */
+
+.table th {
+  color: var(--muted);
+}
+
+/* Accordion */
+
+details.acc[open] {
+  border-color: var(--accent);
+}
+
+/* Settings */
+
+
+
+/* Dark theme */
+
+[data-theme="dark"] .hero .eyebrow {
+  color: var(--accent);
+}
+
+[data-theme="dark"] .tip-card h3 {
+  color: var(--accent);
+}
+
+[data-theme="dark"] .role-card:has(input:checked) {
+  background: var(--primary-soft);
+}
+
+[data-theme="dark"] .tabs button.active {
+  color: var(--text);
+}

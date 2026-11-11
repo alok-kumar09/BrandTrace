@@ -1,0 +1,62 @@
+/* =========================================
+   BRANDTRACE — DASHBOARD REFINEMENTS
+   ========================================= */
+
+/* Interactive elements */
+.editor,
+.field,
+.chip-box,
+.diff-view {
+  border-color: var(--border);
+}
+
+/* Severity chips */
+
+
+
+
+
+
+/* Interactive diffs */
+.diff-del {
+  color: var(--danger);
+  background: var(--danger-soft);
+}
+
+.diff-ins {
+  color: var(--success);
+  background: var(--success-soft);
+}
+
+/* Loading states */
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--surface-alt) 25%,
+    var(--border) 37%,
+    var(--surface-alt) 63%
+  );
+  background-size: 400% 100%;
+}
+
+/* Hover refinement */
+.stat:hover,
+.feature:hover,
+.issue-card:hover {
+  border-color: var(--accent);
+}
+
+/* Dark theme */
+[data-theme="dark"] .chip {
+  color: var(--accent);
+}
+
+[data-theme="dark"] .chip.sev-high,
+[data-theme="dark"] .chip.sev-medium,
+[data-theme="dark"] .chip.sev-low {
+  color: inherit;
+}
+
+[data-theme="dark"] .principle h3 {
+  color: var(--accent);
+}
