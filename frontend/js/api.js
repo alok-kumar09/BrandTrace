@@ -192,6 +192,28 @@ const ApiClient = (() => {
     addMember: (email, orgId = getOrgId()) => request("POST", `/organisations/${orgId}/members`, { email }),
     decideReview: (reviewId, status, orgId = getOrgId()) =>
       request("PUT", `/approvals/${reviewId}`, { organisation_id: orgId, approval_status: status }),
+    
+    // --- Round 3 Feature Endpoints ---
+    analyzeContentLive: async (content, orgId = getOrgId()) => {
+      if (cfg.forceMock) return SampleData.mockAnalyze(content, {});
+      return request("POST", "/analyze", { organisation_id: orgId, content });
+    },
+    getRewriteSuggestions: async (reviewId, instructions = "", orgId = getOrgId()) => {
+      if (cfg.forceMock) return SampleData.mockRewrite(reviewId);
+      return request("POST", "/rewrite/suggestions", { organisation_id: orgId, review_id: reviewId, instructions });
+    },
+    decideSuggestion: async (suggestionId, decision, orgId = getOrgId()) => {
+      if (cfg.forceMock) return { success: true, suggestion_id: suggestionId, status: decision };
+      return request("PATCH", `/rewrite/suggestions/${suggestionId}/decision`, { organisation_id: orgId, decision });
+    },
+    applyRewrites: async (reviewId, saveAsNew = false, orgId = getOrgId()) => {
+      if (cfg.forceMock) return { review_id: reviewId, rewritten_content: "Mock rewritten text applied successfully." };
+      return request("POST", "/rewrite/apply", { organisation_id: orgId, review_id: reviewId, save_as_new_version: saveAsNew });
+    },
+    getAnalytics: async (timespan = "30d", orgId = getOrgId()) => {
+      if (cfg.forceMock) return SampleData.mockAnalytics(timespan);
+      return request("GET", `/analytics/${orgId}?timespan=${timespan}`);
+    }
   };
 
   return {
