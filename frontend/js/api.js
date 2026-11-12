@@ -160,6 +160,10 @@ const ApiClient = (() => {
       original_text: i.original_text || i.original || i.excerpt || "",
       explanation: i.explanation || i.reason || "",
       suggestion: i.suggestion || i.suggested_edit || "",
+      // keep what the backend sends so the workbench can highlight the exact span
+      start_offset: Number.isInteger(i.start_offset) ? i.start_offset : null,
+      end_offset: Number.isInteger(i.end_offset) ? i.end_offset : null,
+      rule_reference: i.rule_reference || null,
     };
   }
 
@@ -174,7 +178,7 @@ const ApiClient = (() => {
       return { ...SampleData.mockAnalyze(content, guidelines), source: "mock" };
     }
 
-    const send = () => request("POST", "/analyze", { organisation_id: orgId, content });
+    const send = () => request("POST", "/analyze", { organisation_id: orgId, content }, 30000);
 
     let data;
     try {
@@ -193,6 +197,8 @@ const ApiClient = (() => {
       source: "live",
       review_id: data.review_id,
       overall_status: data.overall_status,
+      analysis_mode: data.analysis_mode,
+      provider: data.provider,
     };
   }
 
@@ -216,7 +222,7 @@ const ApiClient = (() => {
     },
     getRewriteSuggestions: async (reviewId, selectedViolationIds = [], orgId = getOrgId()) => {
       if (cfg.forceMock) return SampleData.mockRewrite(reviewId);
-      return request("POST", "/rewrite", { organisation_id: orgId, review_id: reviewId, selected_violation_ids: selectedViolationIds });
+      return request("POST", "/rewrite", { organisation_id: orgId, review_id: reviewId, selected_violation_ids: selectedViolationIds }, 45000);
     },
     decideSuggestion: async (reviewId, suggestionId, status, orgId = getOrgId()) => {
       if (cfg.forceMock) return { success: true, suggestion_id: suggestionId, status };

@@ -1,4 +1,3 @@
-
 /* ---- Workbench Layout, Editor & Backdrop ---- */
 .workbench{display:grid;grid-template-columns:1fr 1fr;gap:var(--space-5);align-items:start}
 .workbench>.card{display:flex;flex-direction:column;max-height:82vh;overflow:hidden}
@@ -199,4 +198,14 @@ mark[data-issue-id], .text-highlight {
 
 @media(max-width:1024px){
   .workbench{grid-template-columns:1fr;}
+}
+
+/* Backdrop marks must not change text width: any horizontal padding/border pushes the visible
+   text away from the textarea's real caret. Underline via border-bottom only (no horizontal effect). */
+#editor-backdrop mark,
+#editor-backdrop mark[data-issue-id] {
+  padding: 0;
+  margin: 0;
+  border-left: 0;
+  border-right: 0;
 }

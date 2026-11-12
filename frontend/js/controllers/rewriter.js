@@ -15,6 +15,7 @@
     deciding: new Set(),   // suggestion ids with an approve/reject request in flight
     busy: false,
     lastFocus: null,
+    sample: false,         // true when the suggestions are SampleData, so the server must not be asked to decide on them
   };
 
   // ---- small helpers ----
@@ -189,6 +190,7 @@
     const forceDebug = localStorage.getItem("brandtrace.debug_rewrites") === "1";
     console.log("[Rewriter API] Triggering workflow with reviewId:", reviewId, "selectedIssueIds:", selectedIssueIds, "forceDebug:", forceDebug);
 
+    state.sample = forceDebug || isMock();
     try {
       let response;
       if (forceDebug || isMock()) {
@@ -270,7 +272,8 @@
     render();
 
     try {
-      await api().decideSuggestion(state.reviewId, s.id, decision);
+      if (state.sample) console.log("[Rewriter] sample suggestions: skipping the server call for", s.id);
+      else await api().decideSuggestion(state.reviewId, s.id, decision);
       s.status = decision;
 
       if (decision === "approved") {

@@ -67,24 +67,57 @@
     return { issues, source: "client-side" };
   }
 
-  // ---- Character Offset Highlighting Utility (Backdrop Renderer) ----
-  function renderHighlightedText(rawText, issues) {
-    if (!issues || issues.length === 0) return esc(rawText);
-    
-    // Sort issues in descending order of start_offset so slicing indices don't shift
-    const sorted = [...issues].sort((a, b) => (b.start_offset || 0) - (a.start_offset || 0));
-    let html = rawText;
+  // ---- Range resolution + highlighting (backdrop renderer) ----
+  // Where does this issue's text sit in the draft right now?
+  // 1) trust the stored offsets if the text there still matches; 2) otherwise take the
+  // closest exact (then case-insensitive) match, so highlights follow the user's edits.
+  // Returns { start, end } or null.
+  function resolveRange(text, issue) {
+    const orig = String(issue.original_text || "");
+    if (!orig) return null;
+    const a = issue.start_offset, b = issue.end_offset;
+    if (Number.isInteger(a) && Number.isInteger(b) && text.slice(a, b) === orig) return { start: a, end: b };
 
-    sorted.forEach(issue => {
-      const { start_offset: start, end_offset: end, severity, id } = issue;
-      if (typeof start === "number" && typeof end === "number" && start >= 0 && end <= rawText.length && start < end) {
-        const targetText = rawText.substring(start, end);
-        const sevClass = `violation-${severity || "low"}`;
-        const marked = `<mark class="${sevClass}" data-issue-id="${esc(id)}">${esc(targetText)}</mark>`;
-        html = html.substring(0, start) + marked + html.substring(end);
+    const anchor = Number.isInteger(a) ? a : 0;
+    for (const [hay, needle] of [[text, orig], [text.toLowerCase(), orig.toLowerCase()]]) {
+      let best = null, from = 0, idx;
+      while ((idx = hay.indexOf(needle, from)) !== -1) {
+        const d = Math.abs(idx - anchor);
+        if (!best || d < best.d) best = { start: idx, end: idx + orig.length, d };
+        from = idx + 1;
       }
+      if (best) return { start: best.start, end: best.end };
+    }
+    return null;
+  }
+
+  const SEV_RANK = { high: 3, medium: 2, low: 1 };
+
+  function renderHighlightedText(rawText, issues) {
+    const ranges = [];
+    (issues || []).forEach(issue => {
+      if (issue.status) return;                       // accepted / rejected: no longer highlighted
+      const r = resolveRange(rawText, issue);
+      if (r && r.start < r.end) ranges.push({ ...r, issue });
     });
-    // Append a trailing newline to prevent layout collapse on trailing carriage returns
+
+    // Overlapping spans would nest <mark> tags and shift the text: keep the most severe, then the longest.
+    ranges.sort((x, y) =>
+      (SEV_RANK[y.issue.severity] || 0) - (SEV_RANK[x.issue.severity] || 0) ||
+      (y.end - y.start) - (x.end - x.start));
+    const kept = [];
+    ranges.forEach(r => { if (!kept.some(k => r.start < k.end && k.start < r.end)) kept.push(r); });
+    kept.sort((x, y) => x.start - y.start);
+
+    // Escape every slice (not just the marked ones) so the backdrop text is identical to the textarea's.
+    let html = "", cursor = 0;
+    kept.forEach(({ start, end, issue }) => {
+      html += esc(rawText.slice(cursor, start));
+      html += `<mark class="violation-${esc(issue.severity || "low")}" data-issue-id="${esc(issue.id)}">${esc(rawText.slice(start, end))}</mark>`;
+      cursor = end;
+    });
+    html += esc(rawText.slice(cursor));
+    // Trailing newline prevents layout collapse on a trailing line break
     return html + "\n";
   }
 
@@ -217,6 +250,12 @@
         <a class="btn btn-secondary btn-sm" href="guidelines.html" style="margin-top:12px">Edit guidelines →</a>`;
     }
 
+    const ENGINE_LABEL = {
+      live: "🧠 Backend AI analyser",
+      mock: "🧪 Mock data",
+      "client-side": "⚡ Client-side JS Engine (offline fallback)",
+    };
+
     function summary() {
       const open = issues.filter(i => !i.status);
       const count = sev => open.filter(i => i.severity === sev).length;
@@ -227,7 +266,7 @@
           <span class="badge medium">${count("medium")} medium</span>
           <span class="badge low">${count("low")} low</span>
           <span class="badge resolved">${issues.length - open.length} reviewed</span>
-          <span class="badge neutral">⚡ Client-side JS Engine</span>
+          <span class="badge neutral">${esc(ENGINE_LABEL[source] || ENGINE_LABEL["client-side"])}</span>
         </div>`;
     }
 
@@ -285,23 +324,41 @@
       button.disabled = true;
       button.setAttribute("aria-busy", "true");
       button.innerHTML = `<span class="spinner" aria-hidden="true"></span> Analysing…`;
-      results.innerHTML = `<div class="sk-label" role="status"><span class="spinner-sm"></span> Auditing locally against guidelines…</div>`;
+      results.innerHTML = `<div class="sk-label" role="status"><span class="spinner-sm"></span> Auditing against your guidelines…</div>`;
       document.querySelectorAll(".stat .value").forEach(v => v.classList.add("is-pulsing"));
 
-      setTimeout(() => {
+      (async () => {
         try {
           const guidelines = (typeof Storage !== "undefined" && Storage.load ? Storage.load() : {});
-          const data = runLocalAnalysis(editor.value, guidelines);
+          const text = editor.value;
+          let data;
+          try {
+            if (typeof ApiClient === "undefined") throw new Error("API client not loaded");
+            data = await ApiClient.analyzeContent(text, guidelines);   // live backend (or mock when forced)
+          } catch (err) {
+            console.warn("[Workbench] Backend analysis unavailable, using the local engine:", err?.message || err);
+            data = runLocalAnalysis(text, guidelines);
+            notify("Backend analyser unavailable, so the local checker was used.", "info");
+          }
 
-          issues = data.issues.map((issue, idx) => ({ ...issue, id: issue.id ?? `issue-${Date.now()}-${idx}`, status: null }));
+          issues = data.issues.map((issue, idx) => {
+            const r = resolveRange(text, issue);   // LLM offsets can be off: pin them to the real text
+            return {
+              ...issue,
+              id: issue.id ?? `issue-${Date.now()}-${idx}`,
+              start_offset: r ? r.start : null,
+              end_offset: r ? r.end : null,
+              status: null,
+            };
+          });
           source = data.source;
-          reviewId = null;
+          reviewId = data.review_id ?? null;
 
           render(true);
           persist();
           notify(issues.length ? `Analysis complete. ${issues.length} issue${issues.length === 1 ? "" : "s"} found.` : "Analysis complete. No issues found.", "success");
         } catch (error) {
-          const msg = error?.message || "An unexpected error occurred during local analysis.";
+          const msg = error?.message || "An unexpected error occurred during analysis.";
           results.innerHTML = `<div class="empty-state"><div class="icon">⚠️</div><h3>Analysis failed</h3><p>${esc(msg)}</p></div>`;
           notify(msg, "error");
         } finally {
@@ -310,7 +367,7 @@
           button.removeAttribute("aria-busy");
           button.innerHTML = "🔍 Analyse Content";
         }
-      }, 300);
+      })();
     }
 
     button.addEventListener("click", analyse);
@@ -394,7 +451,10 @@
     });
 
     $("sample-btn")?.addEventListener("click", () => {
-      editor.value = window.SampleData?.draft || "";
+      editor.value = window.SampleData?.draft || ""; issues = []; source = null;
+      reviewId = null;
+      document.dispatchEvent(new CustomEvent("workbench:cleared"));
+      store.del(K.wb);
       clearError(editor);
       updateCounter();
       if (backdrop) {
@@ -403,6 +463,7 @@
       persist();
       notify("NovaBook sample loaded.", "success");
     });
+
 
     updateCounter();
     updateSnapshot();

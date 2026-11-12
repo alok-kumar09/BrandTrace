@@ -25,8 +25,6 @@ class Config:
         else:
             SQLALCHEMY_DATABASE_URI = f"sqlite:///{abs_path}"
 
-    print(f"Using database URI: {SQLALCHEMY_DATABASE_URI}")
-
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SECRET_KEY = os.getenv("SECRET_KEY", "brandtrace-dev-key")
     JWT_SECRET_KEY = os.getenv(
