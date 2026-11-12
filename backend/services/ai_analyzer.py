@@ -3,11 +3,7 @@ import uuid
 import os
 import re
 
-try:
-    from groq import Groq
-except ImportError:  # pragma: no cover - handled at runtime when dependency is unavailable
-    Groq = None
-
+from groq import Groq
 
 def analyze_with_ai(content, guideline_chunks):
     """
@@ -48,7 +44,7 @@ def analyze_with_ai(content, guideline_chunks):
         )
 
         response = client.chat.completions.create(
-            model="openai/llama-3.1-8b-instant",
+            model="openai/gpt-oss-120b",
             messages=[
                 {
                     "role": "user",
