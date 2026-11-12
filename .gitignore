@@ -22,8 +22,8 @@ digest_full.txt
 digest_half.txt
 /__pycache__
 /backend/__pycache____pycache__/
-backend/__pycache__
 frontend/__pycache__/
+backend/__pycache__/
 # Environment secrets
 .env
 
