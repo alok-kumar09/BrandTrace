@@ -1,5 +1,8 @@
 import os
 from pathlib import Path
+from dotenv import load_dotenv
+
+load_dotenv(Path(__file__).resolve().parent.parent / ".env")
 
 BASE_DIR = Path(__file__).resolve().parent
 # Use /tmp on Render if no persistent disk or external DB is configured
@@ -17,6 +20,4 @@ class Config:
     JWT_SECRET_KEY = os.getenv(
         "JWT_SECRET_KEY", "brandtrace-jwt-dev-key-change-before-deployment"
     )
-    print("JWT_SECRET_KEY:", JWT_SECRET_KEY, "from env" if os.getenv("JWT_SECRET_KEY") else "default")
-    print("SECRET_KEY:", SECRET_KEY, "from env" if os.getenv("SECRET_KEY") else "default")
     JWT_ACCESS_TOKEN_EXPIRES = 60 * 60 * 24

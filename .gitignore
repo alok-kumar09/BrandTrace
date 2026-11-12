@@ -15,24 +15,15 @@ instance/
 # Logs and temporary files
 *.log
 node_modules/
-
+context.txt
+content.txt
 digest.txt
 digest_full.txt
 digest_half.txt
 /__pycache__
 /backend/__pycache____pycache__/
 backend/__pycache__
-# backend/tests/
 frontend/__pycache__/
-# frontend/about.html
-# frontend/approvals.html
-# frontend/auth.html
-# frontend/guidelines.html
-# frontend/history.html
-# frontend/content_analysis.html
-# frontend/landing.html
-# frontend/settings.html
-# frontend/css/
 # Environment secrets
 .env
 
@@ -44,3 +35,58 @@ __pycache__/
 *_token.txt
 *.backup
 *.safety
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+venv/
+.venv/
+env/
+
+# Temporary files and folders
+tmp/
+temp/
+.temp/
+*.tmp
+*.log
+
+# Python testing and linting
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Local database and instance data
+instance/
+*.sqlite
+*.sqlite3
+*.db
+
+# IDE and editor files
+.vscode/
+.idea/
+
+# Operating system files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Frontend dependencies and build output
+node_modules/
+dist/
+build/
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Local Postman workspace
+.postman/
+postman/
+
+# Local backup files
+backend/analyzer_backup.py

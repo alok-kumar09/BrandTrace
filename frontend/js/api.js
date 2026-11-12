@@ -17,6 +17,7 @@ const ApiClient = (() => {
   // Use https:// for your production Vercel domain so requests don't fail due to mixed content/protocol errors
   const defaultBase = isLocal ? "http://127.0.0.1:5000" : "https://0hackathon0common0.pythonanywhere.com";
 
+  // ---- CONFIG OBJECT DEFINED HERE FIRST ----
   const cfg = {
     base: localStorage.getItem(BASE_KEY) || defaultBase,
     prefix: "/api",
@@ -35,9 +36,6 @@ const ApiClient = (() => {
     try { localStorage.removeItem(SESSION_KEY); } catch (e) {}
   }
 
-  // A real JWT has exactly 3 dot-separated segments. Anything else
-  // ("mock-jwt-token-for-demo-mode", "demo-judge-token") makes
-  // flask-jwt-extended answer 422/401, so we never send it.
   const looksLikeJwt = t => typeof t === "string" && t.split(".").length === 3;
 
   function token() {
@@ -61,6 +59,42 @@ const ApiClient = (() => {
       location.href = "auth.html" + q;
     }
   }
+
+  async function checkHealth() {
+    if (cfg.forceMock) { window.setBackendStatus?.(false); return false; }
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), cfg.healthMs);
+    try {
+      const res = await fetch(cfg.base + "/api/health", { signal: ctrl.signal });
+      if (!res.ok) throw new Error("health failed");
+      window.setBackendStatus?.(true);
+      return true;
+    } catch (e) {
+      window.setBackendStatus?.(false);
+      return false;
+    } finally { clearTimeout(timer); }
+  }
+
+  // ---- NOW SAFE TO RUN CONNECTION CHECK AFTER cfg IS DECLARED ----
+  (async function verifyBackendConnection() {
+    console.log(`[ApiClient] Initializing. Target Base URL: ${cfg.base}`);
+    console.log(`[ApiClient] Force Mock Mode Enabled: ${cfg.forceMock}`);
+    
+    try {
+      const start = performance.now();
+      const alive = await checkHealth();
+      const duration = Math.round(performance.now() - start);
+      
+      if (alive) {
+        console.log(`%c[ApiClient] ✅ Successfully connected to backend analyser at ${cfg.base} (${duration}ms)`, "color: #10b981; font-weight: bold;");
+      } else {
+        console.warn(`%c[ApiClient] ⚠️ Backend health check failed. The app is currently offline or unreachable at ${cfg.base}.`, "color: #f59e0b; font-weight: bold;");
+      }
+    } catch (err) {
+      console.error(`%c[ApiClient] ❌ Connection error reaching backend at ${cfg.base}:`, "color: #ef4444; font-weight: bold;", err.message);
+    }
+  })();
+
 
   // ---------- core request ----------
   // opts.auth === false  -> do not attach the Authorization header (login/register)
@@ -129,25 +163,13 @@ const ApiClient = (() => {
     };
   }
 
-  async function checkHealth() {
-    if (cfg.forceMock) { window.setBackendStatus?.(false); return false; }
-    const ctrl = new AbortController();
-    const timer = setTimeout(() => ctrl.abort(), cfg.healthMs);
-    try {
-      const res = await fetch(cfg.base + "/api/health", { signal: ctrl.signal });
-      if (!res.ok) throw new Error("health failed");
-      window.setBackendStatus?.(true);
-      return true;
-    } catch (e) {
-      window.setBackendStatus?.(false);
-      return false;
-    } finally { clearTimeout(timer); }
-  }
 
   async function analyzeContent(content, guidelines) {
     const orgId = getOrgId();
+    console.log("[ApiClient] POST /api/analyze payload prepared:", { organisation_id: orgId, content_length: content?.length });
 
     if (cfg.forceMock) {
+      console.log("[ApiClient] Bypassing live analysis because Force Mock is active.");
       await new Promise(r => setTimeout(r, 600));
       return { ...SampleData.mockAnalyze(content, guidelines), source: "mock" };
     }
@@ -156,16 +178,10 @@ const ApiClient = (() => {
 
     let data;
     try {
-      try {
-        data = await send();
-      } catch (err) {
-        // Org has no guidelines on the server yet: push the local ones once, retry.
-        if (err.status === 404 && /guidelines/i.test(err.message)) {
-          await request("PUT", `/guidelines/${orgId}`, toBackendGuidelines(guidelines));
-          data = await send();
-        } else { throw err; }
-      }
+      data = await send();
+      console.log("[ApiClient] POST /api/analyze response received successfully:", data);
     } catch (err) {
+      console.error("[ApiClient] POST /api/analyze failed with status:", err.status, err.message);
       window.setBackendStatus?.(!isOffline(err));
       throw err;
     }

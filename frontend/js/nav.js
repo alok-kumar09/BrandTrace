@@ -55,7 +55,8 @@
     { href: "history.html",    label: "Review History",         icon: "📜" },
     { href: "approvals.html",  label: "Review Approvals",       icon: "🛡️" },
     { href: "settings.html",   label: "Organisation & Members", icon: "👥" },
-    { href: "about.html",      label: "Governance & About",     icon: "ℹ️" }
+    { href: "about.html",      label: "Governance & About",     icon: "ℹ️" },
+    { href: "analytics.html", label: "Analytics", icon: "📈" }
   ];
 
   const current = location.pathname.split("/").pop() || "content_analysis.html";

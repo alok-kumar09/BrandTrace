@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Brand Compliance Analytics · BrandTrace</title>
+
+  <!-- Copy any other <link> tags (base/layout CSS) from dashboard.html here, keeping the same order -->
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/components/02-dashboard-refinements.css">
+
+  <style>
+    /* Page-scoped styles: every colour comes from variables.css, so dark theme works automatically */
+    .an-page { max-width: 1240px; margin: 0 auto; padding: var(--space-5); color: var(--text); font-family: var(--font); }
+    .an-head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: var(--space-4); margin-bottom: var(--space-5); }
+    .an-head h1 { margin: 0 0 var(--space-1); font-size: 1.6rem; letter-spacing: -.01em; }
+    .an-head p { margin: 0; color: var(--muted); max-width: 60ch; }
+    .an-range { display: flex; align-items: center; gap: var(--space-2); color: var(--muted); font-size: .9rem; }
+    .an-range select { font: inherit; color: var(--text); background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: var(--space-2) var(--space-4); cursor: pointer; }
+    .an-range select:focus-visible, .an-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+    .an-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); padding: var(--space-5); min-width: 0; }
+    .an-card h2 { margin: 0 0 var(--space-1); font-size: 1.05rem; }
+    .an-card .an-sub { margin: 0 0 var(--space-4); color: var(--muted); font-size: .85rem; }
+
+    /* Tier 1: KPIs */
+    .an-kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-4); margin-bottom: var(--space-4); }
+    .an-kpi { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); padding: var(--space-5); border-top: 3px solid var(--accent); }
+    .an-kpi.is-main { border-top-color: var(--primary); background: var(--primary-soft); }
+    .an-kpi.is-danger { border-top-color: var(--danger); }
+    .an-kpi.is-info { border-top-color: var(--info); }
+    .an-kpi-label { color: var(--muted); font-size: .85rem; margin-bottom: var(--space-2); }
+    .an-kpi-value { font-size: 2.2rem; font-weight: 700; line-height: 1.1; font-variant-numeric: tabular-nums; }
+    .an-kpi-note { margin-top: var(--space-2); font-size: .8rem; color: var(--muted); min-height: 1.1em; }
+    .an-meter { height: 6px; border-radius: 99px; background: var(--surface-alt); margin-top: var(--space-3); overflow: hidden; }
+    .an-meter > span { display: block; height: 100%; width: 0; background: var(--success); border-radius: 99px; transition: width .8s ease; }
+
+    /* Tier 2: charts */
+    .an-charts { display: grid; grid-template-columns: 2fr 1fr; gap: var(--space-4); margin-bottom: var(--space-4); }
+    .an-charts .an-trend { grid-column: 1 / -1; }
+    .an-chart-wrap { position: relative; height: 280px; }
+    .an-chart-wrap.is-short { height: 240px; }
+    .an-note { margin: var(--space-3) 0 0; font-size: .8rem; color: var(--warning); }
+
+    .an-sev { display: grid; gap: var(--space-4); margin-top: var(--space-2); }
+    .an-sev-row-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--space-2); font-size: .9rem; }
+    .an-chip { display: inline-block; padding: 2px 10px; border-radius: 99px; font-size: .78rem; font-weight: 600; }
+    .an-chip.high { background: var(--danger-soft); color: var(--danger); }
+    .an-chip.medium { background: var(--warning-soft); color: var(--warning); }
+    .an-chip.low { background: var(--info-soft); color: var(--info); }
+    .an-bar { height: 10px; border-radius: 99px; background: var(--surface-alt); overflow: hidden; }
+    .an-bar > span { display: block; height: 100%; width: 0; border-radius: 99px; transition: width .8s ease; }
+    .an-bar .high { background: var(--danger); }
+    .an-bar .medium { background: var(--warning); }
+    .an-bar .low { background: var(--info); }
+
+    /* Tier 3: insights */
+    .an-insights { display: grid; grid-template-columns: 3fr 2fr; gap: var(--space-4); }
+    .an-table-scroll { overflow-x: auto; }
+    .an-table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    .an-table th { text-align: left; font-weight: 600; color: var(--muted); font-size: .8rem; padding: var(--space-2) var(--space-3); border-bottom: 1px solid var(--border); white-space: nowrap; }
+    .an-table td { padding: var(--space-3); border-bottom: 1px solid var(--border); vertical-align: top; }
+    .an-table tr:last-child td { border-bottom: 0; }
+    .an-table .an-count { font-variant-numeric: tabular-nums; font-weight: 700; }
+    .an-quote { font-family: var(--mono); font-size: .85rem; background: var(--surface-alt); padding: 2px 6px; border-radius: 6px; }
+    .an-recs { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-3); }
+    .an-rec { background: var(--accent-soft); border: 1px solid var(--border); border-left: 3px solid var(--primary); border-radius: var(--radius); padding: var(--space-3) var(--space-4); }
+    .an-rec strong { display: block; margin-bottom: 2px; font-size: .92rem; }
+    .an-rec span { color: var(--muted); font-size: .85rem; }
+    .an-empty-line { color: var(--muted); font-size: .9rem; margin: 0; }
+
+    /* Empty + error */
+    .an-state { text-align: center; padding: var(--space-6) var(--space-5); }
+    .an-state h2 { font-size: 1.2rem; margin-bottom: var(--space-2); }
+    .an-state p { color: var(--muted); max-width: 46ch; margin: 0 auto var(--space-4); }
+    .an-btn { display: inline-block; font: inherit; font-weight: 600; cursor: pointer; text-decoration: none; background: var(--primary); color: #fff; border: 0; border-radius: var(--radius); padding: var(--space-3) var(--space-5); }
+    .an-btn:hover { background: var(--primary-dark); }
+
+    /* Loading shimmer */
+    .is-loading .an-skel { color: transparent !important; border-radius: 6px; background: linear-gradient(90deg, var(--surface-alt) 25%, var(--border) 37%, var(--surface-alt) 63%); background-size: 400% 100%; animation: an-shimmer 1.4s ease infinite; }
+    .is-loading .an-chart-wrap { opacity: .35; }
+    @keyframes an-shimmer { 0% { background-position: 100% 50%; } 100% { background-position: 0 50%; } }
+    @media (prefers-reduced-motion: reduce) { .is-loading .an-skel { animation: none; } .an-bar > span, .an-meter > span { transition: none; } }
+
+    @media (max-width: 1000px) { .an-kpis { grid-template-columns: repeat(2, 1fr); } .an-charts, .an-insights { grid-template-columns: 1fr; } }
+    @media (max-width: 520px) { .an-page { padding: var(--space-4); } .an-kpis { grid-template-columns: 1fr; } .an-kpi-value { font-size: 1.9rem; } }
+  </style>
+</head>
+<body>
+  <!-- nav.js wraps <main> in the app shell and injects sidebar + topbar -->
+  <main class="an-page">
+    <header class="an-head">
+      <div>
+        <h1>Brand Compliance Analytics</h1>
+        <p>How well your content follows your brand guidelines, where it slips, and what to fix first.</p>
+      </div>
+      <label class="an-range" for="an-range">Time range
+        <select id="an-range">
+          <option value="7d">Last 7 days</option>
+          <option value="30d" selected>Last 30 days</option>
+          <option value="90d">Last 90 days</option>
+          <option value="all">All time</option>
+        </select>
+      </label>
+    </header>
+
+    <section id="an-error" class="an-card an-state" hidden>
+      <h2>Couldn't load analytics</h2>
+      <p id="an-error-msg">The server didn't respond. Check your connection and try again.</p>
+      <button class="an-btn" id="an-retry" type="button">Try again</button>
+    </section>
+
+    <section id="an-empty" class="an-card an-state" hidden>
+      <h2>No reviews yet</h2>
+      <p>Analytics appear after your first content review. Run an audit and your compliance trends will show up here.</p>
+      <a class="an-btn" href="content_analysis.html">Run your first audit</a>
+    </section>
+
+    <div id="an-content" class="is-loading">
+      <!-- Tier 1: KPIs -->
+      <div class="an-kpis">
+        <div class="an-kpi">
+          <div class="an-kpi-label">Total reviews</div>
+          <div class="an-kpi-value an-skel" id="kpi-reviews">0000</div>
+          <div class="an-kpi-note" id="kpi-reviews-note"></div>
+        </div>
+        <div class="an-kpi is-main">
+          <div class="an-kpi-label">Compliance rate</div>
+          <div class="an-kpi-value an-skel" id="kpi-rate">00%</div>
+          <div class="an-meter" aria-hidden="true"><span id="kpi-rate-bar"></span></div>
+        </div>
+        <div class="an-kpi is-danger">
+          <div class="an-kpi-label">Violations detected</div>
+          <div class="an-kpi-value an-skel" id="kpi-violations">0000</div>
+          <div class="an-kpi-note" id="kpi-violations-note"></div>
+        </div>
+        <div class="an-kpi is-info">
+          <div class="an-kpi-label">Average semantic score</div>
+          <div class="an-kpi-value an-skel" id="kpi-semantic">00</div>
+          <div class="an-kpi-note">Out of 100</div>
+        </div>
+      </div>
+
+      <!-- Tier 2: charts -->
+      <div class="an-charts">
+        <section class="an-card an-trend">
+          <h2>Compliance trend</h2>
+          <p class="an-sub">Compliance rate (line) against review volume (bars).</p>
+          <div class="an-chart-wrap"><canvas id="chart-trend" role="img" aria-label="Compliance rate and review volume over time"></canvas></div>
+          <p class="an-note" id="trend-note" hidden></p>
+        </section>
+
+        <section class="an-card">
+          <h2>Violation categories</h2>
+          <p class="an-sub">Terminology, tone, and fact checks.</p>
+          <div class="an-chart-wrap is-short"><canvas id="chart-categories" role="img" aria-label="Violations by category"></canvas></div>
+        </section>
+
+        <section class="an-card">
+          <h2>Severity</h2>
+          <p class="an-sub">How serious the violations were.</p>
+          <div class="an-sev" id="severity-list"></div>
+        </section>
+      </div>
+
+      <!-- Tier 3: insights -->
+      <div class="an-insights">
+        <section class="an-card">
+          <h2>Recurring violations</h2>
+          <p class="an-sub">The mistakes that keep coming back, most frequent first.</p>
+          <div class="an-table-scroll">
+            <table class="an-table">
+              <thead><tr><th>Violation</th><th>Category</th><th>Severity</th><th>Times</th></tr></thead>
+              <tbody id="recurring-body"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="an-card">
+          <h2>Governance recommendations</h2>
+          <p class="an-sub" id="recs-sub">What to change in your guidelines or workflow.</p>
+          <ul class="an-recs" id="recs-list"></ul>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <!-- Use the same script order as dashboard.html. SampleData (mock mode) must load before api.js is *called* -->
+  <script src="js/nav.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/sample-data.js"></script>
+  <script src="js/dashboard.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/controllers/analytics.js"></script>
+</body>
+</html>
