@@ -81,3 +81,44 @@ details.acc[open] {
 [data-theme="dark"] .tabs button.active {
   color: var(--text);
 }
+
+
+/* Increase vertical spacing between stacked field rows in the settings form */
+#settings-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4); /* Adds clean vertical breathing room between rows */
+}
+
+/* Ensure equal column distribution and spacing */
+.field-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-4);
+}
+
+/* Properly space individual form labels from their inputs */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2); /* Adds space between the label and the input field */
+}
+
+/* Enhance label visibility and alignment */
+.form-group label {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+/* Slightly increase font size for all form inputs and selects */
+.field {
+  font-size: 0.97rem; /* Increased from 0.92rem */
+}
+
+/* Slightly increase font size for form labels */
+.form-group label {
+  font-size: 0.99rem; /* Increased from default/smaller scale */
+  font-weight: 600;
+  color: var(--text);
+}

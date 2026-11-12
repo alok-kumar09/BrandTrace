@@ -1,0 +1,201 @@
+/* =========================================
+   BRANDTRACE — GUIDELINES FORM STYLING FIX
+   ========================================= */
+
+/* Scoped specifically to the guidelines page container */
+[data-page="guidelines"] .form-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  padding: var(--space-6);
+}
+
+/* Form Group Layout & Spaciousness */
+[data-page="guidelines"] .form-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin-bottom: 0; /* Handled by container gap */
+}
+
+/* Form Labels */
+[data-page="guidelines"] .form-group label,
+[data-page="guidelines"] .form-group > h3 {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text);
+  letter-spacing: -0.01em;
+}
+
+/* Helper Hints */
+[data-page="guidelines"] .form-group .hint {
+  font-size: 0.85rem;
+  color: var(--muted);
+  line-height: 1.4;
+  margin-bottom: var(--space-1);
+}
+
+/* Textareas (#tone and #specs) */
+[data-page="guidelines"] textarea.field {
+  min-height: 110px;
+  max-height: 250px;
+  resize: vertical;
+  line-height: 1.6;
+}
+
+/* Restricted Words Row (#chip-input & #rule-severity) */
+[data-page="guidelines"] .form-group div[style*="display: flex"] {
+  display: flex;
+  gap: var(--space-3);
+  align-items: center;
+  margin-bottom: var(--space-2);
+}
+
+[data-page="guidelines"] #chip-input {
+  flex: 1;
+}
+
+[data-page="guidelines"] #rule-severity {
+  width: 160px;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+/* Chip Box Container */
+[data-page="guidelines"] .chip-box {
+  min-height: 48px;
+  padding: var(--space-2) var(--space-3);
+  background: var(--surface-alt);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  align-items: center;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.02);
+}
+
+[data-page="guidelines"] .chip-box:focus-within {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(118, 149, 121, 0.2);
+}
+
+/* Live Rule-Testing Sandbox Component */
+[data-page="guidelines"] .form-group.card {
+  background: var(--surface-alt);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: var(--space-5);
+  margin-top: var(--space-4);
+  box-shadow: var(--shadow);
+}
+
+[data-page="guidelines"] #sandbox-input {
+  margin-top: var(--space-2);
+}
+
+[data-page="guidelines"] #sandbox-feedback {
+  margin-top: var(--space-2);
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+/* =========================================
+   BRANDTRACE — SHINY CAPSULE CHIPS FIX
+   ========================================= */
+
+[data-page="guidelines"] .chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px; /* Slightly increased padding for a chunkier capsule feel */
+  font-size: 1rem;     /* Increased font size (changed from 0.9rem to 1rem) */
+  font-weight: 600;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  /* Thicker and more visible top white highlight layer */
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.05), inset 0 2px 0 rgba(255, 255, 255, 0.65); 
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+[data-page="guidelines"] .chip:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.08), inset 0 2px 0 rgba(255, 255, 255, 0.85);
+}
+/* Severity Color Variants for Capsules */
+[data-page="guidelines"] .chip.sev-high,
+[data-page="guidelines"] .chip.high {
+  background: var(--danger-soft);
+  color: var(--danger);
+  border-color: rgba(198, 83, 77, 0.25);
+}
+
+[data-page="guidelines"] .chip.sev-medium,
+[data-page="guidelines"] .chip.medium {
+  background: var(--warning-soft);
+  color: var(--warning);
+  border-color: rgba(173, 120, 53, 0.25);
+}
+
+[data-page="guidelines"] .chip.sev-low,
+[data-page="guidelines"] .chip.low {
+  background: var(--info-soft);
+  color: var(--info);
+  border-color: rgba(82, 125, 145, 0.25);
+}
+
+/* Optional close/remove button inside chips if present */
+[data-page="guidelines"] .chip .remove-chip,
+[data-page="guidelines"] .chip button {
+  background: none;
+  border: none;
+  font-size: 1rem;
+  cursor: pointer;
+  color: inherit;
+  opacity: 0.7;
+  padding: 0;
+  line-height: 1;
+}
+
+[data-page="guidelines"] .chip .remove-chip:hover {
+  opacity: 1;
+}
+
+/* =========================================
+   BRANDTRACE — UNIVERSAL FORM FONT & TYPOGRAPHY FIX
+   ========================================= */
+
+/* 1. Base scaling for all form controls and interactive fields */
+[data-page="guidelines"] input.field,
+[data-page="guidelines"] textarea.field,
+[data-page="guidelines"] select.field,
+[data-page="guidelines"] .field {
+  font-size: 1rem !important; /* Bumped from 0.92rem to a comfortable 16px */
+  line-height: 1.5;
+}
+
+/* 2. Form labels & section headings */
+[data-page="guidelines"] .form-group label {
+  font-size: 1rem !important;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+/* 3. Helper text & descriptions */
+[data-page="guidelines"] .form-group .hint {
+  font-size: 0.9rem !important; /* Slightly larger hints for readability */
+}
+
+/* 4. Action buttons */
+[data-page="guidelines"] .editor-actions .btn {
+  font-size: 0.95rem !important;
+}
+
+/* 5. Live sandbox title & feedback text */
+[data-page="guidelines"] .form-group.card h3 {
+  font-size: 1.1rem !important;
+}
+
+[data-page="guidelines"] #sandbox-feedback {
+  font-size: 0.95rem !important;
+}

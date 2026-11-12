@@ -403,3 +403,38 @@ button,
     transition-duration: .01ms !important;
   }
 }
+
+/* Base Form Field Styles */
+.field {
+  display: block;
+  width: 100%;
+  padding: 10px 14px;
+  font-family: var(--font);
+  font-size: 0.92rem;
+  color: var(--text);
+  /* Use a slightly elevated/lighter shade compared to base surface */
+  background: var(--surface-alt); 
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+}
+
+.field:hover {
+  border-color: var(--accent);
+}
+
+.field:focus {
+  outline: none;
+  background: var(--surface);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(118, 149, 121, 0.2);
+}
+
+.field::placeholder {
+  color: var(--muted);
+  opacity: 0.7;
+}
+
+
+
