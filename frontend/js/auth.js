@@ -27,11 +27,11 @@
   document.querySelectorAll(".tabs button").forEach(b => b.addEventListener("click", () => {
     mode = b.dataset.mode;
     document.querySelectorAll(".tabs button").forEach(x => x.classList.toggle("active", x === b));
-    $("name-group").hidden = mode === "login";
+    $("name-group").style.display = mode === "login" ? "none" : "";
     $("auth-submit").textContent = mode === "login" ? "Sign in" : "Create account";
     $("auth-error").textContent = "";
   }));
-
+  
   function showError(msg) { $("auth-error").textContent = msg; }
 
   function setBusy(busy) {
