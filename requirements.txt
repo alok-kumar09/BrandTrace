@@ -9,3 +9,5 @@ python-dotenv==1.2.4
 cryptography==43.0.1
 gunicorn==22.0.0
 psycopg2-binary==2.9.9
+groq==1.7.0
+pymupdf==2.1

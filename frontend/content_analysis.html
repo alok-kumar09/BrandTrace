@@ -17,6 +17,7 @@
             <p>Draft your copy, audit it against your brand guidelines, and review every suggestion before it ships.</p>
         </div>
 
+        <!-- Stats Row with Compliance Score Widget -->
         <div class="stats-row">
             <div class="stat">
                 <div class="value" id="st-total">0</div>
@@ -27,8 +28,11 @@
                 <div class="name">High severity open</div>
             </div>
             <div class="stat ok">
-                <div class="value" id="st-reviewed">0</div>
-                <div class="name">Reviewed by you</div>
+                <div class="value" id="st-score">100.0 / 100</div>
+                <div class="name">Compliance Score</div>
+                <div class="score-progress-track">
+                    <div id="score-bar" class="score-progress-fill score-fill-high"></div>
+                </div>
             </div>
             <div class="stat brand">
                 <div class="value" id="st-rules">0</div>
@@ -45,8 +49,12 @@
                     </button>
                 </div>
 
-                <textarea id="editor" class="editor" placeholder="Paste your marketing copy here…"
-                    aria-label="Draft copy"></textarea>
+                <!-- Synchronized Editor Wrapper for Highlighting Overlay -->
+                <div class="editor-container">
+                    <div id="editor-backdrop" class="editor-backdrop" aria-hidden="true"></div>
+                    <textarea id="editor" class="editor" placeholder="Paste your marketing copy here…"
+                        aria-label="Draft copy"></textarea>
+                </div>
 
                 <div class="field-meta">
                     <span id="save-status"></span>
@@ -68,24 +76,17 @@
                     <h2>🛡️ Audit Results</h2>
                 </div>
 
+                <!-- Results container housing summary & violation cards container -->
                 <div id="results" class="results" aria-live="polite">
-                    <!-- Enhanced empty state with quick-action prompt options -->
                     <div class="empty-state">
                         <div class="icon">🛡️</div>
                         <h3>No audit yet</h3>
-                        <p>
-                            Paste your draft or try a quick sample below to test governance rules:
-                        </p>
-
+                        <p>Paste your draft or try a quick sample below to test governance rules:</p>
                         <div class="editor-actions" style="justify-content: center; margin-top: 16px;">
-                            <button type="button" class="btn btn-secondary btn-sm" onclick="loadSamplePreset('social')">
-                                📱 Social Media Caption
-                            </button>
-
                             <button type="button" class="btn btn-secondary btn-sm"
-                                onclick="loadSamplePreset('release')">
-                                🚀 Product Release Note
-                            </button>
+                                onclick="loadSamplePreset('social')">📱 Social Media Caption</button>
+                            <button type="button" class="btn btn-secondary btn-sm"
+                                onclick="loadSamplePreset('release')">🚀 Product Release Note</button>
                         </div>
                     </div>
                 </div>

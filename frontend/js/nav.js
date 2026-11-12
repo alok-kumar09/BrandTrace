@@ -4,7 +4,7 @@
   const THEME_KEY = "brandtrace.theme";
   const SESSION_KEY = "brandtrace.session";
 
-  // Must match the breakpoint in css/nav-mobile.css
+  // Must match the breakpoint in css/components/11-global-foundations-and-controls.css
   const MOBILE_BREAKPOINT = 900;
 
   const safe = fn => {
@@ -91,10 +91,10 @@
     document.body.classList.add("app-shell-layout");
 
     // Mobile navigation styles load themselves, so no HTML file needs editing.
-    if (!document.querySelector('link[href$="nav-mobile.css"]')) {
+    if (!document.querySelector('link[href$="css/components/11-global-foundations-and-controls.css"]')) {
       const link = document.createElement("link");
       link.rel = "stylesheet";
-      link.href = "css/nav-mobile.css";
+      link.href = "css/components/11-global-foundations-and-controls.css";
       document.head.appendChild(link);
     }
 

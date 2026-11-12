@@ -1,8 +1,11 @@
+import os
+import tempfile
+import json
 
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request , jsonify
 from backend.database import db
 from backend.models import Organisation, BrandGuideline
-import json
+from backend.services.guideline_pipeline import process_guideline_pdf
 from backend.services.access_control import (
     organisation_member_required,
     organisation_admin_required
@@ -115,3 +118,71 @@ def save_guidelines(organisation_id):
     except Exception:
         db.session.rollback()
         return jsonify({"error": "Could not save guidelines"}), 500
+
+# Upload and process PDF brand guidelines
+
+@guidelines_bp.route(
+    "/api/guidelines/<int:organisation_id>/upload-pdf",
+    methods=["POST"]
+)
+@organisation_admin_required
+def upload_guideline_pdf(organisation_id):
+
+    uploaded_file = request.files.get("file")
+
+    if uploaded_file is None or not uploaded_file.filename:
+        return jsonify({"error": "Please upload a PDF file"}), 400
+
+    if not uploaded_file.filename.lower().endswith(".pdf"):
+        return jsonify({"error": "Only PDF files are allowed"}), 400
+
+    organisation = db.session.get(Organisation, organisation_id)
+
+    if organisation is None:
+        return jsonify({"error": "Organisation not found"}), 404
+
+    guideline = BrandGuideline.query.filter_by(
+        organisation_id=organisation_id
+    ).order_by(BrandGuideline.id.desc()).first()
+
+    if guideline is None:
+        return jsonify({
+            "error": "Please save basic guidelines before uploading a PDF"
+        }), 404
+
+    temp_path = None
+
+    try:
+        # Save uploaded PDF temporarily
+        with tempfile.NamedTemporaryFile(
+            suffix=".pdf",
+            delete=False
+        ) as temp_file:
+            temp_path = temp_file.name
+            uploaded_file.save(temp_path)
+
+        # Extract text and generate chunks
+        result = process_guideline_pdf(temp_path)
+
+        if not result["success"]:
+            return jsonify({"error": result["error"]}), 400
+
+        # Save chunks in SQLite
+        guideline.guideline_chunks = json.dumps(result["chunks"])
+
+        db.session.commit()
+
+        return jsonify({
+            "message": "PDF guidelines processed successfully",
+            "organisation_id": organisation_id,
+            "total_pages": result["total_pages"],
+            "total_chunks": result["total_chunks"]
+        }), 200
+
+    except Exception:
+        db.session.rollback()
+        return jsonify({"error": "Could not process PDF guidelines"}), 500
+
+    finally:
+        if temp_path and os.path.exists(temp_path):
+            os.remove(temp_path)

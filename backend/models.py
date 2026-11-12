@@ -61,6 +61,7 @@ class BrandGuideline(db.Model):
         db.Text,
         default=""
     )
+    guideline_chunks = db.Column(db.Text, default="[]")
 
     created_at = db.Column(
         db.DateTime(timezone=True),
