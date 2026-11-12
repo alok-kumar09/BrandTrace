@@ -1,0 +1,50 @@
+/* 02-rewriter.css: Smart Rewrites drawer (Feature 2). Reuses tokens from variables.css. */
+
+/* ---- Drawer shell ---- */
+.rewrite-scrim{position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:40}
+.rewrite-scrim[hidden]{display:none}
+
+.rewrite-drawer{
+  position:fixed;top:0;right:0;z-index:50;
+  width:min(440px,100vw);height:100vh;height:100dvh;
+  display:flex;flex-direction:column;
+  background:var(--surface);border-left:1px solid var(--border);box-shadow:var(--shadow);
+  transform:translateX(100%);visibility:hidden;
+  transition:transform .25s ease,visibility 0s linear .25s;
+}
+.rewrite-drawer.is-open{transform:none;visibility:visible;transition:transform .25s ease}
+@media (prefers-reduced-motion:reduce){
+  .rewrite-drawer,.rewrite-drawer.is-open{transition:none}
+}
+
+.rewrite-drawer-head{display:flex;justify-content:space-between;align-items:center;gap:var(--space-3);padding:var(--space-4);border-bottom:1px solid var(--border)}
+.rewrite-drawer-head h2{margin:0;font-size:1.1rem}
+.rewrite-drawer-body{flex:1;overflow-y:auto;padding:var(--space-4)}
+#rewrite-summary{margin-bottom:var(--space-3)}
+
+/* ---- Diff cards ---- */
+.rw-card{border:1px solid var(--border);border-left:5px solid var(--muted);border-radius:var(--radius);padding:var(--space-4);background:var(--surface)}
+.rw-card.is-approved{border-left-color:var(--success)}
+.rw-card.is-rejected{opacity:.6}
+.rw-card.is-stale{border-left-color:var(--warning)}
+.rw-range{font-size:.8rem;color:var(--muted)}
+
+.rw-diff .label:first-child{margin-top:0}
+.rw-del,.rw-ins{display:block;border-radius:6px;padding:8px 12px;font-size:.9rem;text-decoration:none;white-space:pre-wrap;overflow-wrap:anywhere}
+.rw-del{background:var(--danger-soft);color:var(--danger);text-decoration:line-through;font-family:var(--mono)}
+.rw-ins{background:var(--success-soft);color:var(--success);border:1px solid var(--border)}
+.rw-card.is-approved .rw-del{opacity:.6}
+.rw-note{margin:var(--space-3) 0 0;font-size:.85rem;color:var(--muted)}
+
+/* ---- Status badges ---- */
+.rw-state-pending{background:var(--surface-alt);color:var(--muted);border:1px solid var(--border)}
+.rw-state-approved{background:var(--success-soft);color:var(--success)}
+.rw-state-rejected{background:var(--danger-soft);color:var(--danger)}
+.rw-state-stale{background:var(--warning-soft);color:var(--warning)}
+
+/* ---- Selection checkbox added to audit cards ---- */
+.rw-pick{display:inline-flex;align-items:center;gap:6px;margin-left:auto;font-size:.8rem;color:var(--muted);cursor:pointer}
+.rw-pick input{accent-color:var(--primary);cursor:pointer}
+
+/* ---- Page-level buttons ---- */
+#rewrite-reopen[hidden]{display:none}

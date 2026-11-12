@@ -8,6 +8,8 @@
     <title>BrandTrace – Content Analysis Workbench</title>
     <link rel="stylesheet" href="css/variables.css">
     <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/components/02-rewriter.css">
+
 </head>
 
 <body data-page="workbench">
@@ -68,6 +70,12 @@
                     <button id="clear-btn" class="btn btn-secondary" type="button">
                         Clear
                     </button>
+                    <button id="rewrite-btn" class="btn btn-primary" type="button" disabled>
+                        ✨ Generate AI Rewrites
+                    </button>
+                    <button id="rewrite-reopen" class="btn btn-secondary" type="button" hidden>
+                        View rewrites
+                    </button>
                 </div>
             </section>
 
@@ -124,6 +132,18 @@
             </section>
         </div>
     </main>
+    <div id="rewrite-scrim" class="rewrite-scrim" hidden></div>
+    <aside id="rewrite-drawer" class="rewrite-drawer" aria-label="Smart Rewrites">
+        <div class="rewrite-drawer-head">
+            <h2>Smart Rewrites</h2>
+            <button id="rewrite-close" class="btn btn-secondary btn-sm" type="button"
+                aria-label="Close rewrites">✕</button>
+        </div>
+        <div class="rewrite-drawer-body">
+            <div id="rewrite-summary"></div>
+            <div id="rewrite-list" aria-live="polite"></div>
+        </div>
+    </aside>
     <script src="js/nav.js"></script>
     <script src="js/utils.js"></script>
     <script src="js/storage.js"></script>
@@ -131,6 +151,9 @@
     <script src="js/api.js"></script>
     <script src="js/app.js"></script>
     <script src="js/controllers/workbench.js"></script>
+    <script src="js/controllers/rewriter-editor.js"></script>
+    <script src="js/controllers/rewriter-view.js"></script>
+    <script src="js/controllers/rewriter.js"></script>
 </body>
 
 </html>

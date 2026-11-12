@@ -103,6 +103,7 @@
     const saved = store.get(K.wb, null);
     let issues = Array.isArray(saved?.issues) ? saved.issues : [];
     let source = saved?.source || null;
+    let reviewId = saved?.review_id || null;
 
     editor.value = typeof saved?.content === "string" ? saved.content : (window.SampleData?.draft || "");
 
@@ -114,12 +115,42 @@
       </div>`;
 
     const persist = () => {
-      store.set(K.wb, { content: editor.value, issues, source });
+      store.set(K.wb, { content: editor.value, issues, source, review_id: reviewId });
       if (status) status.textContent = "Draft saved · " + timeLabel();
     };
 
     const persistSoon = debounce(persist, 500);
+    window.BrandTraceWorkbench = {
+      getText: () => editor.value,
+      getIssues: () => issues,
+      getReviewId: () => reviewId,
+      setReviewId(id) { reviewId = id; persist(); },
 
+      // Splice text into the draft and keep every other issue's offsets correct.
+      replaceRange(start, end, text, issueId) {
+        const value = editor.value;
+        if (start < 0 || end > value.length || start > end) return false;
+        editor.value = value.slice(0, start) + text + value.slice(end);
+        const delta = text.length - (end - start);
+
+        issues.forEach(i => {
+          if (String(i.id) === String(issueId)) {
+            i.status = "accepted";            // counts as resolved in the score
+            i.start_offset = i.end_offset = null;
+            return;
+          }
+          if (typeof i.start_offset !== "number") return;
+          if (i.start_offset >= end) { i.start_offset += delta; i.end_offset += delta; }
+          else if (i.end_offset > start) { i.start_offset = i.end_offset = null; } // overlapped
+        });
+
+        updateCounter();
+        render();
+        persist();
+        return true;
+      }
+    };
+    
     function updateCounter() {
       if (!counter) return;
       counter.textContent = `${editor.value.length} / ${MAX}`;
@@ -209,7 +240,7 @@
       editor.addEventListener("scroll", syncScroll);
     }
 
-    function render(animate = false) {
+    function paint(animate = false) {
       updateStats();
       if (backdrop) {
         backdrop.innerHTML = renderHighlightedText(editor.value, issues);
@@ -236,7 +267,10 @@
           ${issue.status ? "" : `<div class="issue-actions"><button class="btn btn-success btn-sm" data-act="accept" type="button">✔ Accept</button><button class="btn btn-ghost-danger btn-sm" data-act="reject" type="button">✖ Reject</button></div>`}
         </article>`).join("") + `</div>`;
     }
-
+    function render(animate = false) {
+  paint(animate);
+  document.dispatchEvent(new CustomEvent("workbench:changed"));
+}
     function validate() {
       const value = editor.value.trim();
       if (!value) { setError(editor, "Add some content to analyse."); return false; }
@@ -261,6 +295,7 @@
 
           issues = data.issues.map((issue, idx) => ({ ...issue, id: issue.id ?? `issue-${Date.now()}-${idx}`, status: null }));
           source = data.source;
+          reviewId = null;
 
           render(true);
           persist();
@@ -349,6 +384,8 @@
 
     $("clear-btn")?.addEventListener("click", () => {
       editor.value = ""; issues = []; source = null;
+      reviewId = null;
+      document.dispatchEvent(new CustomEvent("workbench:cleared"));
       store.del(K.wb);
       clearError(editor);
       updateCounter();
@@ -360,7 +397,11 @@
       editor.value = window.SampleData?.draft || "";
       clearError(editor);
       updateCounter();
+      if (backdrop) {
+        backdrop.innerHTML = renderHighlightedText(editor.value, issues);
+      }
       persist();
+      notify("NovaBook sample loaded.", "success");
     });
 
     updateCounter();

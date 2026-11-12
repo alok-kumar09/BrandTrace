@@ -130,5 +130,6 @@ const SampleData = (() => {
     return JSON.parse(JSON.stringify(analyticsResponse));
   }
 
-  return { draft, analysisResponse, rewriteSuggestionsResponse, analyticsResponse, mockAnalyze, mockRewrite, mockAnalytics };
+  window.SampleData = { draft, analysisResponse, rewriteSuggestionsResponse, analyticsResponse, mockAnalyze, mockRewrite, mockAnalytics };
+  return window.SampleData;
 })();

@@ -1,3 +1,4 @@
+
 /* ---- Workbench Layout, Editor & Backdrop ---- */
 .workbench{display:grid;grid-template-columns:1fr 1fr;gap:var(--space-5);align-items:start}
 .workbench>.card{display:flex;flex-direction:column;max-height:82vh;overflow:hidden}
@@ -142,3 +143,60 @@ mark[data-issue-id], .text-highlight {
 /* ---- Responsive ---- */
 @media(max-width:960px){.workbench,.insight-grid{grid-template-columns:1fr}.results{max-height:none}}
 
+/* Fix button container overflowing or hiding on mobile/tabs */
+.editor-actions {
+  display: flex;
+  gap: var(--space-3);
+  margin-top: var(--space-4);
+  flex-wrap: wrap;
+  position: relative;
+  z-index: 3; /* Ensure buttons stay above backdrop layers */
+}
+
+/* Fix spacing between draft restored text and draft box */
+.field-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: var(--space-2); /* Increased spacing from editor */
+  margin-bottom: var(--space-2);
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+.editor, .editor-backdrop {
+  width: 100%;
+  min-height: 420px;
+  max-height: 60vh;
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: inherit;
+  letter-spacing: normal; /* Prevent letter-spacing offset accumulation */
+  line-height: 1.6;       /* Match exact line height */
+  padding: 16px;          /* Use explicit identical padding */
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-sizing: border-box;
+  white-space: pre-wrap;
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+/* Update workbench grid to collapse safely on smaller screens or tabs */
+.workbench{display:grid;grid-template-columns:1fr 1fr;gap:var(--space-5);align-items:start}
+.workbench>.card{display:flex;flex-direction:column;height:auto;max-height:none;overflow:visible}
+
+/* Ensure editor actions container wraps cleanly instead of hiding */
+.editor-actions{
+  display:flex;
+  gap:var(--space-3);
+  margin-top:var(--space-4);
+  flex-wrap:wrap;
+  position:relative;
+  z-index:3;
+}
+
+/* Make results scroll independently without clipping parent layout */
+.results{flex-grow:1;min-height:300px;max-height:55vh;overflow-y:auto;padding-right:4px}
+
+@media(max-width:1024px){
+  .workbench{grid-template-columns:1fr;}
+}

@@ -193,18 +193,18 @@ const ApiClient = (() => {
     decideReview: (reviewId, status, orgId = getOrgId()) =>
       request("PUT", `/approvals/${reviewId}`, { organisation_id: orgId, approval_status: status }),
     
-    // --- Round 3 Feature Endpoints ---
+    // --- Toshit's Aligned Round 3 Endpoints ---
     analyzeContentLive: async (content, orgId = getOrgId()) => {
       if (cfg.forceMock) return SampleData.mockAnalyze(content, {});
       return request("POST", "/analyze", { organisation_id: orgId, content });
     },
-    getRewriteSuggestions: async (reviewId, instructions = "", orgId = getOrgId()) => {
+    getRewriteSuggestions: async (reviewId, selectedViolationIds = [], orgId = getOrgId()) => {
       if (cfg.forceMock) return SampleData.mockRewrite(reviewId);
-      return request("POST", "/rewrite/suggestions", { organisation_id: orgId, review_id: reviewId, instructions });
+      return request("POST", "/rewrite", { organisation_id: orgId, review_id: reviewId, selected_violation_ids: selectedViolationIds });
     },
-    decideSuggestion: async (suggestionId, decision, orgId = getOrgId()) => {
-      if (cfg.forceMock) return { success: true, suggestion_id: suggestionId, status: decision };
-      return request("PATCH", `/rewrite/suggestions/${suggestionId}/decision`, { organisation_id: orgId, decision });
+    decideSuggestion: async (reviewId, suggestionId, status, orgId = getOrgId()) => {
+      if (cfg.forceMock) return { success: true, suggestion_id: suggestionId, status };
+      return request("PUT", `/approvals/${reviewId}/suggestions/${suggestionId}`, { organisation_id: orgId, status });
     },
     applyRewrites: async (reviewId, saveAsNew = false, orgId = getOrgId()) => {
       if (cfg.forceMock) return { review_id: reviewId, rewritten_content: "Mock rewritten text applied successfully." };
@@ -212,7 +212,7 @@ const ApiClient = (() => {
     },
     getAnalytics: async (timespan = "30d", orgId = getOrgId()) => {
       if (cfg.forceMock) return SampleData.mockAnalytics(timespan);
-      return request("GET", `/analytics/${orgId}?timespan=${timespan}`);
+      return request("GET", `/analytics/${orgId}`);
     }
   };
 
